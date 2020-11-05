@@ -23,13 +23,13 @@ next_file_number = 0
 def mkfilename():
     global next_file_number
     next_file_number += 1
-    return '{}'.format(next_file_number)
+    return str(next_file_number)
 
 
 def static_vars(**kwargs):
     def decorate(func):
-        for k in kwargs:
-            setattr(func, k, kwargs[k])
+        for k, val in kwargs.items():
+            setattr(func, k, val)
         return func
 
     return decorate
