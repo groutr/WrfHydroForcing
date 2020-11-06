@@ -334,7 +334,7 @@ def check_supp_pcp_bounds(ConfigOptions, supplemental_precip, MpiConfig):
         return
 
     # First check to see if we have any data that is not missing.
-    indCheck = np.where(supplemental_precip.regridded_precip2 != ConfigOptions.globalNdv)
+    # indCheck = np.where(supplemental_precip.regridded_precip2 != ConfigOptions.globalNdv)
 
     #if len(indCheck[0]) == 0:
     #    ConfigOptions.errMsg = "No valid supplemental precip found in " + supplemental_precip.file_in2
@@ -383,17 +383,12 @@ def check_missing_final(outPath, ConfigOptions, output_grid, var_name, MpiConfig
     """
     # Run NDV check. If ANY values are found, throw an error and shut the
     # forcing engine down.
-    indCheck = np.where(output_grid == ConfigOptions.globalNdv)
+    indCheck = output_grid == ConfigOptions.globalNdv
 
-    if len(indCheck[0]) > 0:
-        ConfigOptions.errMsg = "Found " + str(len(indCheck[0])) + " NDV pixel cells in output grid for: " + \
+    if indCheck.any():
+        ConfigOptions.errMsg = "Found " + str(np.count_nonzero(indCheck)) + " NDV pixel cells in output grid for: " + \
                                var_name
         log_critical(ConfigOptions, MpiConfig)
-        indCheck = None
         # If the output file has been created, remove it as it will be empty.
         if os.path.isfile(outPath):
             os.remove(outPath)
-        return
-    else:
-        indCheck = None
-        return
