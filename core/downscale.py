@@ -79,7 +79,8 @@ def no_downscale(input_forcings, ConfigOptions, GeoMetaWrfHydro, MpiConfig):
     :param ConfigOptions:
     :return:
     """
-    input_forcings.final_forcings = input_forcings.final_forcings
+    return
+    # input_forcings.final_forcings = input_forcings.final_forcings
 
 
 def simple_lapse(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
@@ -107,7 +108,7 @@ def simple_lapse(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
     # Apply single lapse rate value to the input 2-meter
     # temperature values.
     try:
-        indNdv = np.where(input_forcings.final_forcings == ConfigOptions.globalNdv)
+        indNdv = input_forcings.final_forcings == ConfigOptions.globalNdv
     except:
         ConfigOptions.errMsg = "Unable to perform NDV search on input forcings"
         err_handler.log_critical(ConfigOptions, MpiConfig)
@@ -122,8 +123,6 @@ def simple_lapse(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
 
     input_forcings.final_forcings[indNdv] = ConfigOptions.globalNdv
 
-    # Reset for memory efficiency
-    indNdv = None
 
 def param_lapse(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
     """
@@ -201,14 +200,12 @@ def param_lapse(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
                     break
 
                 # Perform a quick search to ensure we don't have radical values.
-                indTmp = np.where(lapseTmp < -10.0)
-                if len(indTmp[0]) > 0:
+                if (lapseTmp < -10.0).any():
                     ConfigOptions.errMsg = "Found anomolous negative values in the lapse rate grid from " \
                                            "parameter file: " + lapsePath
                     err_handler.log_critical(ConfigOptions, MpiConfig)
                     break
-                indTmp = np.where(lapseTmp > 100.0)
-                if len(indTmp[0]) > 0:
+                if (lapseTmp > 100.0).any():
                     ConfigOptions.errMsg = "Found excessively high values in the lapse rate grid from " \
                                            "parameter file: " + lapsePath
                     err_handler.log_critical(ConfigOptions, MpiConfig)
@@ -232,22 +229,18 @@ def param_lapse(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
         err_handler.check_program_status(ConfigOptions, MpiConfig)
 
     # Apply the local lapse rate grid to our local slab of 2-meter temperature data.
-    temperature_grid_tmp = input_forcings.final_forcings[4, :, :]
     try:
-        indNdv = np.where(input_forcings.final_forcings == ConfigOptions.globalNdv)
+        indNdv = input_forcings.final_forcings == ConfigOptions.globalNdv
     except:
         ConfigOptions.errMsg = "Unable to perform NDV search on input " + \
                                input_forcings.productName + " regridded forcings."
         err_handler.log_critical(ConfigOptions, MpiConfig)
         return
+
     try:
-        indValid = np.where(temperature_grid_tmp != ConfigOptions.globalNdv)
-    except:
-        ConfigOptions.errMsg = "Unable to perform search for valid values on input " + \
-                               input_forcings.productName + " regridded temperature forcings."
-        err_handler.log_critical(ConfigOptions, MpiConfig)
-        return
-    try:
+        # View over final_forcings. Updates here update final_forcings.
+        temperature_grid_tmp = input_forcings.final_forcings[4, :, :]
+        indValid = temperature_grid_tmp != ConfigOptions.globalNdv
         temperature_grid_tmp[indValid] = temperature_grid_tmp[indValid] + \
                                          ((input_forcings.lapseGrid[indValid]/1000.0) * elevDiff[indValid])
     except:
@@ -256,15 +249,9 @@ def param_lapse(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
         err_handler.log_critical(ConfigOptions, MpiConfig)
         return
 
-    input_forcings.final_forcings[4,:,:] = temperature_grid_tmp
+    #input_forcings.final_forcings[4,:,:] = temperature_grid_tmp
     input_forcings.final_forcings[indNdv] = ConfigOptions.globalNdv
 
-    # Reset for memory efficiency
-    indTmp = None
-    indNdv = None
-    indValid = None
-    elevDiff = None
-    temperature_grid_tmp = None
 
 def pressure_down_classic(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
     """
@@ -287,7 +274,7 @@ def pressure_down_classic(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig
         input_forcings.psfcTmp[:, :] = input_forcings.final_forcings[6, :, :]
 
     try:
-        indNdv = np.where(input_forcings.final_forcings == ConfigOptions.globalNdv)
+        indNdv = input_forcings.final_forcings == ConfigOptions.globalNdv
     except:
         ConfigOptions.errMsg = "Unable to perform NDV search on input forcings"
         err_handler.log_critical(ConfigOptions, MpiConfig)
@@ -303,8 +290,6 @@ def pressure_down_classic(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig
 
     input_forcings.final_forcings[indNdv] = ConfigOptions.globalNdv
 
-    # Reset for memory efficiency
-    indNdv = None
 
 def q2_down_classic(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
     """
@@ -322,7 +307,7 @@ def q2_down_classic(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
 
     # Establish where we have missing values.
     try:
-        indNdv = np.where(input_forcings.final_forcings == ConfigOptions.globalNdv)
+        indNdv = input_forcings.final_forcings == ConfigOptions.globalNdv
     except:
         ConfigOptions.errMsg = "Unable to perform NDV search on input forcings"
         err_handler.log_critical(ConfigOptions, MpiConfig)
@@ -348,8 +333,6 @@ def q2_down_classic(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
         return
     input_forcings.final_forcings[5,:,:] = q2Tmp
     input_forcings.final_forcings[indNdv] = ConfigOptions.globalNdv
-    q2Tmp = None
-    indNdv = None
 
 def nwm_monthly_PRISM_downscale(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
     """
@@ -520,8 +503,9 @@ def nwm_monthly_PRISM_downscale(input_forcings,ConfigOptions,GeoMetaWrfHydro,Mpi
     denLocal = input_forcings.nwmPRISM_denGrid[:,:]
 
     # Establish index of where we have valid data.
+    
     try:
-        indValid = np.where((localRainRate > 0.0) & (denLocal > 0.0) & (numLocal > 0.0))
+        indValid = (localRainRate > 0.0) & (denLocal > 0.0) & (numLocal > 0.0)
     except:
         ConfigOptions.errMsg = "Unable to run numpy search for valid values on precip and " \
                                "param grid in mountain mapper downscaling"
@@ -530,42 +514,14 @@ def nwm_monthly_PRISM_downscale(input_forcings,ConfigOptions,GeoMetaWrfHydro,Mpi
 
     # Convert precipitation rate, which is mm/s to mm, which is needed to run the PRISM downscaling.
     try:
-        localRainRate[indValid] = localRainRate[indValid]*3600.0
+        localRainRate[indValid] *= numLocal[indValid] / denLocal[indValid]
     except:
         ConfigOptions.errMsg = "Unable to convert temporary precip rate from mm/s to mm."
         err_handler.log_critical(ConfigOptions, MpiConfig)
     err_handler.check_program_status(ConfigOptions, MpiConfig)
 
-    try:
-        localRainRate[indValid] = localRainRate[indValid] * numLocal[indValid]
-    except:
-        ConfigOptions.errMsg = "Unable to multiply precip by numerator in mountain mapper downscaling"
-        err_handler.log_critical(ConfigOptions, MpiConfig)
-    err_handler.check_program_status(ConfigOptions, MpiConfig)
-
-    try:
-        localRainRate[indValid] = localRainRate[indValid] / denLocal[indValid]
-    except:
-        ConfigOptions.errMsg = "Unable to divide precip by denominator in mountain mapper downscaling"
-        err_handler.log_critical(ConfigOptions, MpiConfig)
-    err_handler.check_program_status(ConfigOptions, MpiConfig)
-
-    # Convert local precip back to a rate (mm/s)
-    try:
-        localRainRate[indValid] = localRainRate[indValid]/3600.0
-    except:
-        ConfigOptions.errMsg = "Unable to convert temporary precip rate from mm to mm/s."
-        err_handler.log_critical(ConfigOptions, MpiConfig)
-    err_handler.check_program_status(ConfigOptions, MpiConfig)
-
     input_forcings.final_forcings[3, :, :] = localRainRate
 
-    # Reset variables for memory efficiency
-    idDenom = None
-    idNum = None
-    localRainRate = None
-    numLocal = None
-    denLocal = None
 
 def ncar_topo_adj(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
     """
@@ -582,7 +538,7 @@ def ncar_topo_adj(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
 
     # Establish where we have missing values.
     try:
-        indNdv = np.where(input_forcings.final_forcings == ConfigOptions.globalNdv)
+        indNdv = input_forcings.final_forcings == ConfigOptions.globalNdv
     except:
         ConfigOptions.errMsg = "Unable to perform NDV search on input forcings"
         err_handler.log_critical(ConfigOptions, MpiConfig)
@@ -590,8 +546,6 @@ def ncar_topo_adj(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
 
     # By the time this function has been called, necessary input static grids (height, slope, etc),
     # should have been calculated for each local slab of data.
-    DEGRAD = math.pi/180.0
-    DPD = 360.0/365.0
     try:
         DECLIN, SOLCON = radconst(ConfigOptions)
     except:
@@ -619,12 +573,6 @@ def ncar_topo_adj(input_forcings,ConfigOptions,GeoMetaWrfHydro,MpiConfig):
     # Assign missing values based on our mask.
     input_forcings.final_forcings[indNdv] = ConfigOptions.globalNdv
 
-    # Reset variables to free up memory
-    DECLIN = None
-    SOLCON = None
-    coszen_loc = None
-    hrang_loc = None
-    indNdv = None
 
 def radconst(ConfigOptions):
     """
@@ -719,21 +667,16 @@ def TOPO_RAD_ADJ_DRVR(GeoMetaWrfHydro,input_forcings,COSZEN,declin,solcon,hrang2
 
     # Sanity checking on incoming shortwave grid.
     SWDOWN = input_forcings.final_forcings[7,:,:]
-    SWDOWN[np.where(SWDOWN < 0.0)] = 0.0
-    SWDOWN[np.where(SWDOWN >= 1400.0)] = 1400.0
+    SWDOWN = SWDOWN.clip(min=0, max=1400)
+    COSZEN = COSZEN.clip(min=1E-4)
 
-    COSZEN[np.where(COSZEN < 1E-4)] = 1E-4
-
-    corr_frac = np.empty([ny, nx], np.int)
+    corr_frac = np.zeros([ny, nx], np.int)
     # shadow_mask = np.empty([ny,nx],np.int)
-    diffuse_frac = np.empty([ny, nx], np.int)
-    corr_frac[:, :] = 0
-    diffuse_frac[:, :] = 0
+    diffuse_frac = np.zeros([ny, nx], np.int)
+
     # shadow_mask[:,:] = 0
 
-    indTmp = np.where((GeoMetaWrfHydro.slope[:,:] == 0.0) &
-                      (SWDOWN <= 10.0))
-    corr_frac[indTmp] = 1
+    corr_frac[(GeoMetaWrfHydro.slope == 0.0) & (SWDOWN <= 10.0)] = 1
 
     term1 = np.sin(xxlat) * np.cos(hrang2d)
     term2 = ((0 - np.cos(GeoMetaWrfHydro.slp_azi)) *
@@ -748,14 +691,14 @@ def TOPO_RAD_ADJ_DRVR(GeoMetaWrfHydro,input_forcings,COSZEN,declin,solcon,hrang2
     csza_slp = (term1 * term2 - term3 + term4) * math.cos(declin) + \
                (term5 + term6) * math.sin(declin)
 
-    csza_slp[np.where(csza_slp <= 1E-4)] = 1E-4
+    csza_slp = csza_slp.clip(min=1E-4)
     # Topographic shading
     # csza_slp[np.where(shadow == 1)] = 1E-4
 
     # Correction factor for sloping topographic: the diffuse fraction of solar
     # radiation is assumed to be unaffected by the slope.
     corr_fac = diffuse_frac + ((1 - diffuse_frac) * csza_slp) / COSZEN
-    corr_fac[np.where(corr_fac > 1.3)] = 1.3
+    corr_fac = corr_fac.clip(max=1.3)
 
     # Peform downscaling
     SWDOWN_OUT = SWDOWN * corr_fac
