@@ -176,7 +176,7 @@ def regrid_conus_hrrr(input_forcings, config_options, wrf_hydro_geo_meta, mpi_co
 
             # Set any pixel cells outside the input domain to the global missing value.
             try:
-                input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+                input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                     config_options.globalNdv
             except (ValueError, ArithmeticError) as npe:
                 config_options.errMsg = "Unable to perform HRRR mask search on elevation data: " + str(npe)
@@ -244,7 +244,7 @@ def regrid_conus_hrrr(input_forcings, config_options, wrf_hydro_geo_meta, mpi_co
 
         # Set any pixel cells outside the input domain to the global missing value.
         try:
-            input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+            input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                 config_options.globalNdv
         except (ValueError, ArithmeticError) as npe:
             config_options.errMsg = "Unable to perform mask test on regridded HRRR forcings: " + str(npe)
@@ -406,7 +406,7 @@ def regrid_conus_rap(input_forcings, config_options, wrf_hydro_geo_meta, mpi_con
 
             # Set any pixel cells outside the input domain to the global missing value.
             try:
-                input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+                input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                     config_options.globalNdv
             except (ValueError, ArithmeticError) as npe:
                 config_options.errMsg = "Unable to perform mask search on RAP elevation data: " + str(npe)
@@ -473,7 +473,7 @@ def regrid_conus_rap(input_forcings, config_options, wrf_hydro_geo_meta, mpi_con
 
         # Set any pixel cells outside the input domain to the global missing value.
         try:
-            input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+            input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                 config_options.globalNdv
         except (ValueError, ArithmeticError) as npe:
             config_options.errMsg = "Unable to run mask calculation on RAP variable: " + \
@@ -649,7 +649,7 @@ def regrid_cfsv2(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config)
 
             # Set any pixel cells outside the input domain to the global missing value.
             try:
-                input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+                input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                     config_options.globalNdv
             except (ValueError, ArithmeticError) as npe:
                 config_options.errMsg = "Unable to run mask calculation on CFSv2 elevation data: " + str(npe)
@@ -757,7 +757,7 @@ def regrid_cfsv2(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config)
 
             # Set any pixel cells outside the input domain to the global missing value.
             try:
-                input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+                input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                     config_options.globalNdv
             except (ValueError, ArithmeticError) as npe:
                 config_options.errMsg = "Unable to run mask calculation on CFSv2 variable: " + \
@@ -866,7 +866,7 @@ def regrid_custom_hourly_netcdf(input_forcings, config_options, wrf_hydro_geo_me
             input_forcings.esmf_field_out = input_forcings.regridObj(input_forcings.esmf_field_in,
                                                                      input_forcings.esmf_field_out)
             # Set any pixel cells outside the input domain to the global missing value.
-            input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+            input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                 config_options.globalNdv
             # mpi_config.comm.barrier()
 
@@ -891,7 +891,7 @@ def regrid_custom_hourly_netcdf(input_forcings, config_options, wrf_hydro_geo_me
         input_forcings.esmf_field_out = input_forcings.regridObj(input_forcings.esmf_field_in,
                                                                  input_forcings.esmf_field_out)
         # Set any pixel cells outside the input domain to the global missing value.
-        input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+        input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
             config_options.globalNdv
         # mpi_config.comm.barrier()
 
@@ -1082,7 +1082,7 @@ def regrid_gfs(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config):
 
             # Set any pixel cells outside the input domain to the global missing value.
             try:
-                input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+                input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                     config_options.globalNdv
             except (ValueError, ArithmeticError) as npe:
                 config_options.errMsg = "Unable to perform mask search on GFS elevation data: " + str(npe)
@@ -1162,7 +1162,7 @@ def regrid_gfs(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config):
 
         # Set any pixel cells outside the input domain to the global missing value.
         try:
-            input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+            input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                 config_options.globalNdv
         except (ValueError, ArithmeticError) as npe:
             config_options.errMsg = "Unable to run mask search on GFS variable: " + \
@@ -1325,7 +1325,7 @@ def regrid_nam_nest(input_forcings, config_options, wrf_hydro_geo_meta, mpi_conf
 
             # Set any pixel cells outside the input domain to the global missing value.
             try:
-                input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+                input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                     config_options.globalNdv
             except (ValueError, ArithmeticError) as npe:
                 config_options.errMsg = "Unable to compute mask on NAM nest elevation data: " + str(npe)
@@ -1391,7 +1391,7 @@ def regrid_nam_nest(input_forcings, config_options, wrf_hydro_geo_meta, mpi_conf
 
         # Set any pixel cells outside the input domain to the global missing value.
         try:
-            input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+            input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                 config_options.globalNdv
         except (ValueError, ArithmeticError) as npe:
             config_options.errMsg = "Unable to calculate mask from input NAM nest regridded forcings: " + str(npe)
@@ -1626,7 +1626,7 @@ def regrid_mrms_hourly(supplemental_precip, config_options, wrf_hydro_geo_meta, 
 
         # Set any pixel cells outside the input domain to the global missing value.
         try:
-            supplemental_precip.esmf_field_out.data[np.where(supplemental_precip.regridded_mask == 0)] = \
+            supplemental_precip.esmf_field_out.data[supplemental_precip.regridded_mask == 0] = \
                 config_options.globalNdv
         except (ValueError, ArithmeticError) as npe:
             config_options.errMsg = "Unable to run mask calculation for MRMS RQI data: " + str(npe)
@@ -1693,7 +1693,7 @@ def regrid_mrms_hourly(supplemental_precip, config_options, wrf_hydro_geo_meta, 
 
     # Set any pixel cells outside the input domain to the global missing value.
     try:
-        supplemental_precip.esmf_field_out.data[np.where(supplemental_precip.regridded_mask == 0)] = \
+        supplemental_precip.esmf_field_out.data[supplemental_precip.regridded_mask == 0] = \
             config_options.globalNdv
     except (ValueError, ArithmeticError) as npe:
         config_options.errMsg = "Unable to run mask search on MRMS supplemental precip: " + str(npe)
@@ -1707,9 +1707,8 @@ def regrid_mrms_hourly(supplemental_precip, config_options, wrf_hydro_geo_meta, 
     # Check for any RQI values below the threshold specified by the user.
     # Set these values to global NDV.
     try:
-        ind_filter = np.where(supplemental_precip.regridded_rqi2 < config_options.rqiThresh)
-        supplemental_precip.regridded_precip2[ind_filter] = config_options.globalNdv
-        del ind_filter
+        mask = supplemental_precip.regridded_rqi2 < config_options.rqiThresh
+        supplemental_precip.regridded_precip2[mask] = config_options.globalNdv
     except (ValueError, AttributeError, KeyError, ArithmeticError) as npe:
         config_options.errMsg = "Unable to run MRMS RQI threshold search: " + str(npe)
         err_handler.log_critical(config_options, mpi_config)
@@ -1717,9 +1716,8 @@ def regrid_mrms_hourly(supplemental_precip, config_options, wrf_hydro_geo_meta, 
 
     # Convert the hourly precipitation total to a rate of mm/s
     try:
-        ind_valid = np.where(supplemental_precip.regridded_precip2 != config_options.globalNdv)
-        supplemental_precip.regridded_precip2[ind_valid] = supplemental_precip.regridded_precip2[ind_valid] / 3600.0
-        del ind_valid
+        mask = supplemental_precip.regridded_precip2 != config_options.globalNdv
+        supplemental_precip.regridded_precip2[mask] /= 3600.0
     except (ValueError, AttributeError, ArithmeticError, KeyError) as npe:
         config_options.errMsg = "Unable to run global NDV search on MRMS regridded precip: " + str(npe)
         err_handler.log_critical(config_options, mpi_config)
@@ -1875,7 +1873,7 @@ def regrid_hourly_wrf_arw(input_forcings, config_options, wrf_hydro_geo_meta, mp
 
             # Set any pixel cells outside the input domain to the global missing value.
             try:
-                input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+                input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                     config_options.globalNdv
             except (ValueError, ArithmeticError) as npe:
                 config_options.errMsg = "Unable to compute mask on WRF-ARW elevation data: " + str(npe)
@@ -1941,7 +1939,7 @@ def regrid_hourly_wrf_arw(input_forcings, config_options, wrf_hydro_geo_meta, mp
 
         # Set any pixel cells outside the input domain to the global missing value.
         try:
-            input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+            input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
                 config_options.globalNdv
         except (ValueError, ArithmeticError) as npe:
             config_options.errMsg = "Unable to calculate mask from input WRF-ARW regridded forcings: " + str(npe)
@@ -1951,9 +1949,8 @@ def regrid_hourly_wrf_arw(input_forcings, config_options, wrf_hydro_geo_meta, mp
         # Convert the hourly precipitation total to a rate of mm/s
         if grib_var == 'APCP':
             try:
-                ind_valid = np.where(input_forcings.esmf_field_out.data != config_options.globalNdv)
-                input_forcings.esmf_field_out.data[ind_valid] = input_forcings.esmf_field_out.data[ind_valid] / 3600.0
-                del ind_valid
+                mask = input_forcings.esmf_field_out.data != config_options.globalNdv
+                input_forcings.esmf_field_out.data[mask] /= 3600.0
             except (ValueError, ArithmeticError, AttributeError, KeyError) as npe:
                 config_options.errMsg = "Unable to run NDV search on WRF ARW precipitation: " + str(npe)
                 err_handler.log_critical(config_options, mpi_config)
@@ -2098,7 +2095,7 @@ def regrid_hourly_wrf_arw_hi_res_pcp(supplemental_precip, config_options, wrf_hy
 
     # Set any pixel cells outside the input domain to the global missing value.
     try:
-        supplemental_precip.esmf_field_out.data[np.where(supplemental_precip.regridded_mask == 0)] = \
+        supplemental_precip.esmf_field_out.data[supplemental_precip.regridded_mask == 0] = \
             config_options.globalNdv
     except (ValueError, ArithmeticError) as npe:
         config_options.errMsg = "Unable to run mask search on WRF ARW supplemental precipitation: " + str(npe)
@@ -2110,9 +2107,8 @@ def regrid_hourly_wrf_arw_hi_res_pcp(supplemental_precip, config_options, wrf_hy
 
     # Convert the hourly precipitation total to a rate of mm/s
     try:
-        ind_valid = np.where(supplemental_precip.regridded_precip2 != config_options.globalNdv)
-        supplemental_precip.regridded_precip2[ind_valid] = supplemental_precip.regridded_precip2[ind_valid] / 3600.0
-        del ind_valid
+        mask = supplemental_precip.regridded_precip2 != config_options.globalNdv
+        supplemental_precip.regridded_precip2[mask] /= 3600.0
     except (ValueError, ArithmeticError, AttributeError, KeyError) as npe:
         config_options.errMsg = "Unable to run NDV search on WRF ARW supplemental precipitation: " + str(npe)
         err_handler.log_critical(config_options, mpi_config)
