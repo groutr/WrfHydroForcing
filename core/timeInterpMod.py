@@ -142,20 +142,15 @@ def weighted_average(input_forcings,ConfigOptions,MpiConfig):
     dtFromNext = ConfigOptions.current_output_date - input_forcings.fcst_date2
     weight2 = 1-(abs(dtFromNext.total_seconds())/(input_forcings.outFreq*60.0))
 
-    # Calculate where we have missing data in either the previous or next forcing dataset.
-    ind1Ndv = np.where(input_forcings.regridded_forcings1 == ConfigOptions.globalNdv)
-    ind2Ndv = np.where(input_forcings.regridded_forcings2 == ConfigOptions.globalNdv)
-
     input_forcings.final_forcings[:,:,:] = input_forcings.regridded_forcings1[:,:,:]*weight1 + \
         input_forcings.regridded_forcings2[:,:,:]*weight2
 
     # Set any pixel cells that were missing for either window to missing value.
-    input_forcings.final_forcings[ind1Ndv] = ConfigOptions.globalNdv
-    input_forcings.final_forcings[ind2Ndv] = ConfigOptions.globalNdv
+    mask = input_forcings.regridded_forcings1 == ConfigOptions.globalNdv
+    input_forcings.final_forcings[mask] = ConfigOptions.globalNdv
+    mask = input_forcings.regridded_forcings2 == ConfigOptions.globalNdv
+    input_forcings.final_forcings[mask] = ConfigOptions.globalNdv
 
-    # Reset for memory efficiency.
-    ind1Ndv = None
-    ind2Ndv = None
 
 def weighted_average_supp_pcp(supplemental_precip,ConfigOptions,MpiConfig):
     """
@@ -179,20 +174,15 @@ def weighted_average_supp_pcp(supplemental_precip,ConfigOptions,MpiConfig):
         dtFromNext = ConfigOptions.current_output_date - supplemental_precip.pcp_date2
         weight2 = 1 - (abs(dtFromNext.total_seconds()) / (supplemental_precip.input_frequency * 60.0))
 
-        # Calculate where we have missing data in either the previous or next forcing dataset.
-        ind1Ndv = np.where(supplemental_precip.regridded_precip1 == ConfigOptions.globalNdv)
-        ind2Ndv = np.where(supplemental_precip.regridded_precip2 == ConfigOptions.globalNdv)
-
         supplemental_precip.final_supp_precip[:,:] = supplemental_precip.regridded_precip1[:,:] * weight1 + \
                                                      supplemental_precip.regridded_precip2[:,:] * weight2
 
         # Set any pixel cells that were missing for either window to missing value.
-        supplemental_precip.final_supp_precip[ind1Ndv] = ConfigOptions.globalNdv
-        supplemental_precip.final_supp_precip[ind2Ndv] = ConfigOptions.globalNdv
+        mask = supplemental_precip.regridded_precip1 == ConfigOptions.globalNdv
+        supplemental_precip.final_supp_precip[mask] = ConfigOptions.globalNdv
+        mask = supplemental_precip.regridded_precip2 == ConfigOptions.globalNdv
+        supplemental_precip.final_supp_precip[mask] = ConfigOptions.globalNdv
 
-        # Reset for memory efficiency.
-        ind1Ndv = None
-        ind2Ndv = None
     else:
         # We have missing files.
         supplemental_precip.final_supp_precip[:, :] = ConfigOptions.globalNdv
@@ -268,7 +258,7 @@ def gfs_pcp_time_interp(input_forcings,ConfigOptions,MpiConfig):
     # Return the interpolated grid back to the regridding program.
 
     # Set any negative values to 0.0
-    instPcpGlobal[np.where(instPcpGlobal < 0.0)] = 0.0
+    instPcpGlobal = instPcpGlobal.clip(min=0)
 
     return instPcpGlobal
 
