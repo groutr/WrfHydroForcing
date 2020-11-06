@@ -446,13 +446,13 @@ class GeoMetaWrfHydro:
         hx[indOrig] = toposlpx[indOrig]
         hy[indOrig] = toposlpy[indOrig]
         slopeOut[indOrig] = np.arctan((hx[indOrig] ** 2 + hy[indOrig] **2) ** 0.5)
-        slopeOut[np.where(slopeOut < 1E-4)] = 0.0
-        slp_azi[np.where(slopeOut < 1E-4)] = 0.0
-        indValidTmp = np.where(slopeOut >= 1E-4)
+        slopeOut[slopeOut < 1E-4] = 0.0
+        slp_azi[slopeOut < 1E-4] = 0.0
+        indValidTmp = slopeOut >= 1E-4
         slp_azi[indValidTmp] = np.arctan2(hx[indValidTmp],hy[indValidTmp]) + math.pi
-        indValidTmp = np.where(cosaGrid >= 0.0)
+        indValidTmp = cosaGrid >= 0.0
         slp_azi[indValidTmp] = slp_azi[indValidTmp] - np.arcsin(sinaGrid[indValidTmp])
-        indValidTmp = np.where(cosaGrid < 0.0)
+        indValidTmp = cosaGrid < 0.0
         slp_azi[indValidTmp] = slp_azi[indValidTmp] - (math.pi - np.arcsin(sinaGrid[indValidTmp]))
 
         # Reset temporary arrays to None to free up memory
