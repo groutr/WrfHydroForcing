@@ -32,7 +32,7 @@ def layer_final_forcings(OutputObj,input_forcings,ConfigOptions,MpiConfig):
         if force_idx in input_forcings.input_map_output:
             outLayerCurrent = OutputObj.output_local[force_idx,:,:]
             layerIn = input_forcings.final_forcings[force_idx,:,:]
-            indSet = np.where(layerIn != ConfigOptions.globalNdv)
+            indSet = layerIn != ConfigOptions.globalNdv
             outLayerCurrent[indSet] = layerIn[indSet]
             OutputObj.output_local[force_idx, :, :] = outLayerCurrent
 
@@ -52,10 +52,10 @@ def layer_supplemental_precipitation(OutputObj,supplemental_precip,ConfigOptions
     :param MpiConfig:
     :return:
     """
-    indSet = np.where(supplemental_precip.final_supp_precip != ConfigOptions.globalNdv)
+    indSet = supplemental_precip.final_supp_precip != ConfigOptions.globalNdv
     layerIn = supplemental_precip.final_supp_precip
     layerOut = OutputObj.output_local[3,:,:]
-    if len(indSet[0]) != 0:
+    if indSet.any():
         layerOut[indSet] = layerIn[indSet]
     else:
         # We have all missing data for the supplemental precip for this step.
