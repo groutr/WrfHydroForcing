@@ -188,7 +188,7 @@ def ncar_tbl_correction(input_forcings, config_options, mpi_config, force_num):
 
     ind_valid = None
     try:
-        ind_valid = np.where(force_tmp != config_options.globalNdv)
+        ind_valid = force_tmp != config_options.globalNdv
     except NumpyExceptions as npe:
         config_options.errMsg = "Unable to perform valid search for: " + input_forcings.netcdf_var_names[force_num] + \
                                 " from local forcing object for: " + input_forcings.productName + " (" + str(npe) + ")"
@@ -250,7 +250,7 @@ def ncar_blanket_adjustment_lw(input_forcings, config_options, mpi_config, force
 
     ind_valid = None
     try:
-        ind_valid = np.where(lw_tmp != config_options.globalNdv)
+        ind_valid = lw_tmp != config_options.globalNdv
     except NumpyExceptions as npe:
         config_options.errMsg = "Unable to calculate valid index in incoming LW for: " + \
                                 input_forcings.productName + " (" + str(npe) + ")"
@@ -343,7 +343,7 @@ def ncar_sw_hrrr_bias_correct(input_forcings, geo_meta_wrf_hydro, config_options
                                   np.cos(geo_meta_wrf_hydro.latitude_grid * d2r) * math.cos(decl) * np.cos(ha))
 
     # Check for any values greater than 90 degrees.
-    sol_zen_ang[np.where(sol_zen_ang > 90.0)] = 90.0
+    sol_zen_ang = sol_zen_ang.clip(max=90)
 
     # Extract the current incoming shortwave field from the forcing object and set it to
     # a local grid. We will perform the bias correction on this grid, based on forecast
@@ -361,7 +361,7 @@ def ncar_sw_hrrr_bias_correct(input_forcings, geo_meta_wrf_hydro, config_options
     # Calculate where we have valid values.
     ind_valid = None
     try:
-        ind_valid = np.where(sw_tmp != config_options.globalNdv)
+        ind_valid = sw_tmp != config_options.globalNdv
     except NumpyExceptions as npe:
         config_options.errMsg = "Unable to run a search for valid SW values for: " + input_forcings.productName + \
                                 " (" + str(npe) + ")"
@@ -449,7 +449,7 @@ def ncar_temp_hrrr_bias_correct(input_forcings, config_options, mpi_config, forc
 
     ind_valid = None
     try:
-        ind_valid = np.where(temp_in != config_options.globalNdv)
+        ind_valid = temp_in != config_options.globalNdv
     except NumpyExceptions as npe:
         config_options.errMsg = "Unable to calculate valid index in incoming temperature for: " + \
                                 input_forcings.productName + " (" + str(npe) + ")"
@@ -505,7 +505,7 @@ def ncar_temp_gfs_bias_correct(input_forcings, config_options, mpi_config, force
 
     ind_valid = None
     try:
-        ind_valid = np.where(temp_in != config_options.globalNdv)
+        ind_valid = temp_in != config_options.globalNdv
     except NumpyExceptions as npe:
         config_options.errMsg = "Unable to calculate valid index in incoming temperature for: " + \
                                 input_forcings.productName + " (" + str(npe) + ")"
@@ -563,7 +563,7 @@ def ncar_lwdown_gfs_bias_correct(input_forcings, config_options, mpi_config, for
 
     ind_valid = None
     try:
-        ind_valid = np.where(lwdown_in != config_options.globalNdv)
+        ind_valid = lwdown_in != config_options.globalNdv
     except NumpyExceptions as npe:
         config_options.errMsg = "Unable to calculate valid index in incoming longwave for: " + \
                                 input_forcings.productName + " (" + str(npe) + ")"
@@ -619,7 +619,7 @@ def ncar_wspd_hrrr_bias_correct(input_forcings, config_options, mpi_config, forc
         wspd_bias_corr = wspd_net_bias_sr[config_options.current_output_step - 1]
 
     wspd = wspd + wspd_bias_corr
-    wspd = np.where(wspd < 0, 0, wspd)
+    wspd = wspd.clip(min=0)
 
     ugrid_out = wspd * np.cos(wdir)
     vgrid_out = wspd * np.sin(wdir)
@@ -638,7 +638,7 @@ def ncar_wspd_hrrr_bias_correct(input_forcings, config_options, mpi_config, forc
 
     ind_valid = None
     try:
-        ind_valid = np.where(wind_in != config_options.globalNdv)
+        ind_valid = wind_in != config_options.globalNdv
     except NumpyExceptions as npe:
         config_options.errMsg = "Unable to calculate valid index in incoming windspeed for: " + \
                                 input_forcings.productName + " (" + str(npe) + ")"
@@ -695,7 +695,7 @@ def ncar_wspd_gfs_bias_correct(input_forcings, config_options, mpi_config, force
                 wspd_diurnal_ampl_mr * math.sin(wspd_diurnal_offs_mr + hh / 24 * TWO_PI)
 
     wspd = wspd + wspd_bias_corr
-    wspd = np.where(wspd < 0, 0, wspd)
+    wspd = wspd.clip(min=0)
 
     ugrid_out = wspd * np.cos(wdir)
     vgrid_out = wspd * np.sin(wdir)
@@ -715,7 +715,7 @@ def ncar_wspd_gfs_bias_correct(input_forcings, config_options, mpi_config, force
 
     ind_valid = None
     try:
-        ind_valid = np.where(wind_in != config_options.globalNdv)
+        ind_valid = wind_in != config_options.globalNdv
     except NumpyExceptions as npe:
         config_options.errMsg = "Unable to calculate valid index in incoming windspeed for: " + \
                                 input_forcings.productName + " (" + str(npe) + ")"
@@ -942,10 +942,11 @@ def cfsv2_nldas_nwm_bias_correct(input_forcings, config_options, mpi_config, for
                 err_handler.log_critical(config_options, mpi_config)
 
         # Set missing values accordingly.
-        nldas_param_1[np.where(nldas_param_1 == fill_tmp)] = config_options.globalNdv
-        nldas_param_2[np.where(nldas_param_1 == fill_tmp)] = config_options.globalNdv
+        mask = nldas_param_1 == fill_tmp
+        nldas_param_1[mask] = config_options.globalNdv
+        nldas_param_2[mask] = config_options.globalNdv
         if force_num == 4:
-            nldas_zero_pcp[np.where(nldas_zero_pcp == fill_tmp)] = config_options.globalNdv
+            nldas_zero_pcp[nldas_zero_pcp == fill_tmp] = config_options.globalNdv
 
         # Params are y-mirrored compared to the way WGRIB2 produces output
         nldas_param_1 = np.flip(nldas_param_1, axis=0)
@@ -1099,13 +1100,13 @@ def cfsv2_nldas_nwm_bias_correct(input_forcings, config_options, mpi_config, for
 
         # Reset any missing values. Because the fill values for these files are all over the map, we
         # will just do a gross check here. For the most part, there shouldn't be missing values.
-        param_1[np.where(param_1 > 500000.0)] = config_options.globalNdv
-        param_2[np.where(param_2 > 500000.0)] = config_options.globalNdv
-        prev_param_1[np.where(prev_param_1 > 500000.0)] = config_options.globalNdv
-        prev_param_2[np.where(prev_param_2 > 500000.0)] = config_options.globalNdv
+        param_1[param_1 > 500000.0] = config_options.globalNdv
+        param_2[param_2 > 500000.0] = config_options.globalNdv
+        prev_param_1[prev_param_1 > 500000.0] = config_options.globalNdv
+        prev_param_2[prev_param_2 > 500000.0] = config_options.globalNdv
         if force_num == 4:
-            zero_pcp[np.where(zero_pcp > 500000.0)] = config_options.globalNdv
-            prev_zero_pcp[np.where(prev_zero_pcp > 500000.0)] = config_options.globalNdv
+            zero_pcp[zero_pcp > 500000.0] = config_options.globalNdv
+            prev_zero_pcp[prev_zero_pcp > 500000.0] = config_options.globalNdv
 
         # Params are y-mirrored compared to the way WGRIB2 produces output
         param_1 = np.flip(param_1, axis=0)
@@ -1409,7 +1410,7 @@ def cfsv2_nldas_nwm_bias_correct(input_forcings, config_options, mpi_config, for
 
     # Set any pixel cells outside the input domain to the global missing value.
     try:
-        input_forcings.esmf_field_out.data[np.where(input_forcings.regridded_mask == 0)] = \
+        input_forcings.esmf_field_out.data[input_forcings.regridded_mask == 0] = \
             config_options.globalNdv
     except NumpyExceptions as npe:
         config_options.errMsg = "Unable to run mask calculation on CFSv2 variable: " + \
