@@ -10,18 +10,16 @@ from core import time_handling
 from core import regrid
 from core import timeInterpMod
 
+# Constants
+GRIB2 = "GRIB2"
+GRIB1 = "GRIB1"
+NETCDF = "NETCDF"
 
 class input_forcings:
     """
     This is an abstract class that will define all the parameters
     of a single input forcing product.
-    """
-    
-    # Constants
-    GRIB2 = "GRIB2"
-    GRIB1 = "GRIB1"
-    NETCDF = "NETCDF"
-    
+    """    
     def __init__(self):
         """
         Initializing all attributes and objects to None.
@@ -111,10 +109,6 @@ class input_forcings:
         forcing key value.
         :return:
         """
-        GRIB1 = self.GRIB1
-        GRIB2 = self.GRIB2
-        NETCDF = self.NETCDF
-
         product_names = {
             1: "NLDAS2_GRIB1",
             2: "NARR_GRIB1",

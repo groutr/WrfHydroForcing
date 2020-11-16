@@ -13,9 +13,7 @@ from core import err_handler
 from core import ioMod
 from core import timeInterpMod
 
-# TODO: import these from forcingInputMod (not working currently ¯\_(ツ)_/¯)
-NETCDF = "NETCDF"
-GRIB2 = "GRIB2"
+from core.forcingInputMod import NETCDF, GRIB2
 
 next_file_number = 0
 
