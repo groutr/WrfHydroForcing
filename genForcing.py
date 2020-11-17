@@ -1,8 +1,6 @@
 import argparse
 import os
 
-import ESMF
-
 from core import config
 from core import err_handler
 from core import forcingInputMod
