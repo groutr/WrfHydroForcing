@@ -133,7 +133,8 @@ class input_forcings:
             15: "NAM_Nest_3km_Alaska",
             16: "NAM_Nest_3km_Hawaii_Radiation-Only",
             17: "NAM_Nest_3km_PuertoRico_Radiation-Only",
-            18: "WRF_ARW_PuertoRico_GRIB2"
+            18: "WRF_ARW_PuertoRico_GRIB2",
+            19: "HWRF"
         }
         self.productName = product_names[self.keyValue]
 
@@ -184,7 +185,8 @@ class input_forcings:
             15: 360,
             16: 360,
             17: 360,
-            18: 1440
+            18: 1440,
+            19: -9999
         }
         self.cycleFreq = cycle_freq_minutes[self.keyValue]
 
@@ -214,7 +216,8 @@ class input_forcings:
                  'DLWRF', 'PRES'],
             16: ['DSWRF', 'DLWRF'],
             17: ['DSWRF', 'DLWRF'],
-            18: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'APCP', 'PRES']
+            18: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'APCP', 'PRES'],
+            19: None
         }
         self.grib_vars = grib_vars_in[self.keyValue]
 
@@ -257,6 +260,7 @@ class input_forcings:
             18: ['80 m above ground', '2 m above ground',
                 '10 m above ground', '10 m above ground',
                 'surface', 'surface'],
+            19: None
         }
         self.grib_levels = grib_levels_in[self.keyValue]
 
@@ -310,6 +314,9 @@ class input_forcings:
             18: ['TMP_80maboveground', 'SPFH_2maboveground',
                 'UGRD_10maboveground', 'VGRD_10maboveground',
                 'APCP_surface', 'PRES_surface'],
+            19: ["DLWRF_surface", "DSWRF_surface", "PRES_surface",
+                "TMP_2maboveground", "SPFH_2maboveground", "PRATE_surface",
+                "uwnd", "vwnd", "P"]
         }
         self.netcdf_var_names = netcdf_variables[self.keyValue]
 
@@ -333,7 +340,8 @@ class input_forcings:
             15: None,
             16: None,
             17: None,
-            18: None
+            18: None,
+            19: None
         }
         self.grib_mes_idx = grib_message_idx[self.keyValue] 
 
@@ -356,6 +364,7 @@ class input_forcings:
             16: [7,2],
             17: [7, 2],
             18: [4, 5, 0, 1, 3, 6],
+            19: [4,5,0,1,3,7,2,6]
         }
         self.input_map_output = input_map_to_outputs[self.keyValue]
 
@@ -386,6 +395,7 @@ class input_forcings:
             16: time_handling.find_nam_nest_neighbors,
             17: time_handling.find_nam_nest_neighbors,
             18: time_handling.find_hourly_wrf_arw_neighbors,
+            19: time_handling.find_hwrf_neighbors
         }
 
         find_neighbor_files[self.keyValue](self, ConfigOptions, dCurrent,MpiConfig)
@@ -418,6 +428,7 @@ class input_forcings:
             16: regrid.regrid_nam_nest,
             17: regrid.regrid_nam_nest,
             18: regrid.regrid_hourly_wrf_arw,
+            19: regrid.regrid_hwrf
         }
         regrid_inputs[self.keyValue](self,ConfigOptions,wrfHyroGeoMeta,MpiConfig)
 
