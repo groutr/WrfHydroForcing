@@ -109,8 +109,62 @@ class ConfigOptions:
             err_handler.err_out_screen('Unable to open the configuration file: ' + self.config_path)
 
         # Read in the base input forcing options as an array of values to map.
+        if "Input" in config:
+            self.read_section_input(config["Input"])
+        
+        if "Output" in config:
+            self.read_section_output(config["Output"])
+
+        if "Retrospective" in config:
+            self.read_section_retrospective(config["Retrospective"])
+
+        if "Forecast" in config:
+            self.read_section_forecast(config["Forecast"])
+
+        if "Geospatial" in config:
+            self.read_section_geospatial(config["Geospatial"])
+
+        if "Regridding" in config:
+            self.read_section_regridding(config["Regridding"])
+
+        if "Interpolation" in config:
+            self.read_section_interpolation(config["Interpolation"])
+
+        if "Downscaling" in config:
+            self.read_section_downscaling(config["Downscaling"])
+
+        if "BiasCorrection" in config:
+            # Read AnA flag option
+            try:
+                # check both the Forecast section and if it's not there, the old BiasCorrection location
+                self.ana_flag = config['Forecast'].get('AnAFlag', config['BiasCorrection'].get('AnAFlag'))
+                if self.ana_flag is None:
+                    raise KeyError
+                else:
+                    self.ana_flag = int(self.ana_flag)
+            except KeyError:
+                err_handler.err_out_screen('Unable to locate AnAFlag in the configuration file.')
+            except configparser.NoOptionError:
+                err_handler.err_out_screen('Unable to locate AnAFlag in the configuration file.')
+            except ValueError:
+                err_handler.err_out_screen('Improper AnAFlag value ')
+            if self.ana_flag < 0 or self.ana_flag > 1:
+                err_handler.err_out_screen('Please choose a AnAFlag value of 0 or 1.')
+
+            self.read_section_bias_correction(config["BiasCorrection"])
+
+        if "SuppForcing" in config:
+            self.read_section_supp_forcing(config["SuppForcing"])
+
+        if "Ensembles" in config:
+            self.read_section_ensembles(config["Ensembles"])
+
+        if "Custom" in config:
+            self.read_section_custom(config["Custom"])
+
+    def read_section_input(self, section):
         try:
-            self.input_forcings = json.loads(config['Input']['InputForcings'])
+            self.input_forcings = json.loads(section['InputForcings'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate InputForcings under Input section in configuration file.')
         except configparser.NoOptionError:
@@ -131,8 +185,8 @@ class ConfigOptions:
 
         # Read in the input forcings types (GRIB[1|2], NETCDF)
         try:
-            self.input_force_types = config.get('Input', 'InputForcingTypes').strip("[]").split(',')
-            self.input_force_types = [ftype.strip() for ftype in self.input_force_types]
+            types = section['InputForcingTypes'].strip("[]").split(",")
+            self.input_force_types = list(map(str.strip, types))
             if self.input_force_types == ['']:
                 self.input_force_types = []
         except KeyError:
@@ -145,13 +199,13 @@ class ConfigOptions:
             err_handler.err_out_screen('Number of InputForcingTypes must match the number '
                                        'of InputForcings in the configuration file.')
         for fileType in self.input_force_types:
-            if fileType not in ['GRIB1', 'GRIB2', 'NETCDF']:
+            if fileType not in {'GRIB1', 'GRIB2', 'NETCDF'}:
                 err_handler.err_out_screen('Invalid forcing file type "{}" specified. '
                                            'Only GRIB1, GRIB2, and NETCDF are supported'.format(fileType))
 
         # Read in the input directories for each forcing option.
         try:
-            self.input_force_dirs = config.get('Input', 'InputForcingDirectories').split(',')
+            self.input_force_dirs = section['InputForcingDirectories'].split(',')
         except KeyError:
             err_handler.err_out_screen('Unable to locate InputForcingDirectories in Input section '
                                        'in the configuration file.')
@@ -171,7 +225,7 @@ class ConfigOptions:
 
         # Read in the mandatory enforcement options for input forcings.
         try:
-            self.input_force_mandatory = json.loads(config['Input']['InputMandatory'])
+            self.input_force_mandatory = json.loads(section['InputMandatory'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate InputMandatory under Input section in configuration file.')
         except configparser.NoOptionError:
@@ -181,7 +235,7 @@ class ConfigOptions:
 
         # Process input forcing enforcement options
         try:
-            self.input_force_mandatory = json.loads(config['Input']['InputMandatory'])
+            self.input_force_mandatory = json.loads(section['InputMandatory'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate InputMandatory under the Input section '
                                        'in the configuration file.')
@@ -199,9 +253,10 @@ class ConfigOptions:
                 err_handler.err_out_screen('Invalid InputMandatory chosen in the configuration file. Please'
                                            ' choose a value of 0 or 1 for each corresponding input forcing.')
 
+    def read_section_output(self, section):
         # Read in the output frequency
         try:
-            self.output_freq = int(config['Output']['OutputFrequency'])
+            self.output_freq = int(section['OutputFrequency'])
         except ValueError:
             err_handler.err_out_screen('Improper OutputFrequency value specified  in the configuration file.')
         except KeyError:
@@ -213,7 +268,7 @@ class ConfigOptions:
 
         # Read in the output directory
         try:
-            self.output_dir = config['Output']['OutDir']
+            self.output_dir = section['OutDir']
         except ValueError:
             err_handler.err_out_screen('Improper OutDir specified in the configuration file.')
         except KeyError:
@@ -225,7 +280,7 @@ class ConfigOptions:
 
         # Read in the scratch temporary directory.
         try:
-            self.scratch_dir = config['Output']['ScratchDir']
+            self.scratch_dir = section['ScratchDir']
         except ValueError:
             err_handler.err_out_screen('Improper ScratchDir specified in the configuration file.')
         except KeyError:
@@ -237,7 +292,7 @@ class ConfigOptions:
 
         # Read in compression option
         try:
-            self.useCompression = int(config['Output']['compressOutput'])
+            self.useCompression = int(section['compressOutput'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate compressOut in the configuration file.')
         except configparser.NoOptionError:
@@ -249,7 +304,7 @@ class ConfigOptions:
 
         # Read in floating-point option
         try:
-            self.useFloats = int(config['Output']['floatOutput'])
+            self.useFloats = int(section['floatOutput'])
         except KeyError:
             # err_handler.err_out_screen('Unable to locate floatOutput in the configuration file.')
             self.useFloats = 0
@@ -261,9 +316,10 @@ class ConfigOptions:
         if self.useFloats < 0 or self.useFloats > 1:
             err_handler.err_out_screen('Please choose a floatOutput value of 0 or 1.')
 
+    def read_section_retrospective(self, section):
         # Read in retrospective options
         try:
-            self.retro_flag = int(config['Retrospective']['RetroFlag'])
+            self.retro_flag = int(section['RetroFlag'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate RetroFlag in the configuration file.')
         except configparser.NoOptionError:
@@ -278,7 +334,7 @@ class ConfigOptions:
             self.realtime_flag = False
             self.refcst_flag = False
             try:
-                beg_date_tmp = config['Retrospective']['BDateProc']
+                beg_date_tmp = section['BDateProc']
             except KeyError:
                 err_handler.err_out_screen('Unable to locate BDateProc under Logistics section in '
                                            'configuration file.')
@@ -301,7 +357,7 @@ class ConfigOptions:
 
             # Process the ending date of retrospective forcings to process
             try:
-                end_date_tmp = config['Retrospective']['EDateProc']
+                end_date_tmp = section['EDateProc']
             except KeyError:
                 err_handler.err_out_screen('Unable to locate EDateProc under Logistics section in '
                                            'configuration file.')
@@ -332,11 +388,12 @@ class ConfigOptions:
             dt_tmp = self.e_date_proc - self.b_date_proc
             self.num_output_steps = int((dt_tmp.days * 1440 + dt_tmp.seconds / 60.0) / self.output_freq)
 
+    def read_section_forecast(self, section):
         # Process realtime or reforecasting options.
         if self.retro_flag == 0:
             # If the retro flag is off, we are assuming a realtime or reforecast simulation.
             try:
-                self.look_back = int(config['Forecast']['LookBack'])
+                self.look_back = int(section['LookBack'])
                 if self.look_back <= 0 and self.look_back != -9999:
                     err_handler.err_out_screen('Please specify a positive LookBack or -9999 for realtime.')
             except ValueError:
@@ -351,7 +408,7 @@ class ConfigOptions:
 
             # Process the beginning date of reforecast forcings to process
             try:
-                beg_date_tmp = config['Forecast']['RefcstBDateProc']
+                beg_date_tmp = section['RefcstBDateProc']
             except KeyError:
                 err_handler.err_out_screen('Unable to locate RefcstBDateProc under Logistics section in '
                                            'configuration file.')
@@ -374,7 +431,7 @@ class ConfigOptions:
 
             # Process the ending date of reforecast forcings to process
             try:
-                end_date_tmp = config['Forecast']['RefcstEDateProc']
+                end_date_tmp = section['RefcstEDateProc']
             except KeyError:
                 err_handler.err_out_screen('Unable to locate RefcstEDateProc under Logistics section in '
                                            'configuration file.')
@@ -422,7 +479,7 @@ class ConfigOptions:
 
             # Read in the ForecastFrequency option.
             try:
-                self.fcst_freq = int(config['Forecast']['ForecastFrequency'])
+                self.fcst_freq = int(section['ForecastFrequency'])
             except ValueError:
                 err_handler.err_out_screen('Improper ForecastFrequency value entered into '
                                            'the configuration file. Please check your entry.')
@@ -445,7 +502,7 @@ class ConfigOptions:
             # it's used to calculate the beginning of the processing window.
             if True: # was: self.realtime_flag:
                 try:
-                    self.fcst_shift = int(config['Forecast']['ForecastShift'])
+                    self.fcst_shift = int(section['ForecastShift'])
                 except ValueError:
                     err_handler.err_out_screen('Improper ForecastShift value entered into the '
                                                'configuration file. Please check your entry.')
@@ -477,7 +534,7 @@ class ConfigOptions:
 
             # Read in the ForecastInputHorizons options.
             try:
-                self.fcst_input_horizons = json.loads(config['Forecast']['ForecastInputHorizons'])
+                self.fcst_input_horizons = json.loads(section['ForecastInputHorizons'])
             except KeyError:
                 err_handler.err_out_screen('Unable to locate ForecastInputHorizons under Forecast section in '
                                            'configuration file.')
@@ -500,7 +557,7 @@ class ConfigOptions:
 
             # Read in the ForecastInputOffsets options.
             try:
-                self.fcst_input_offsets = json.loads(config['Forecast']['ForecastInputOffsets'])
+                self.fcst_input_offsets = json.loads(section['ForecastInputOffsets'])
             except KeyError:
                 err_handler.err_out_screen('Unable to locate ForecastInputOffsets under Forecast '
                                            'section in the configuration file.')
@@ -532,9 +589,10 @@ class ConfigOptions:
             # Calculate the number of output time steps per forecast cycle.
             self.num_output_steps = int(self.cycle_length_minutes / self.output_freq)
 
+    def read_section_geospatial(self, section):
         # Process geospatial information
         try:
-            self.geogrid = config['Geospatial']['GeogridIn']
+            self.geogrid = section['GeogridIn']
         except KeyError:
             err_handler.err_out_screen('Unable to locate GeogridIn in the configuration file.')
         except configparser.NoOptionError:
@@ -544,7 +602,7 @@ class ConfigOptions:
 
         # Check for the optional geospatial land metadata file.
         try:
-            self.spatial_meta = config['Geospatial']['SpatialMetaIn']
+            self.spatial_meta = section['SpatialMetaIn']
         except KeyError:
             err_handler.err_out_screen('Unable to locate SpatialMetaIn in the configuration file.')
         if len(self.spatial_meta) == 0:
@@ -557,7 +615,7 @@ class ConfigOptions:
 
         # Check for the IgnoredBorderWidths
         try:
-            self.ignored_border_widths = json.loads(config['Geospatial']['IgnoredBorderWidths'])
+            self.ignored_border_widths = json.loads(section['IgnoredBorderWidths'])
         except (KeyError, configparser.NoOptionError):
             # if didn't specify, no worries, just set to 0
             self.ignored_border_widths = [0.0]*self.number_inputs
@@ -572,9 +630,10 @@ class ConfigOptions:
             err_handler.err_out_screen('Please specify IgnoredBorderWidths values greater than or equal to zero:'
                                        '({} was supplied'.format(self.ignored_border_widths))
 
+    def read_section_regridding(self, section):
         # Process regridding options.
         try:
-            self.regrid_opt = json.loads(config['Regridding']['RegridOpt'])
+            self.regrid_opt = json.loads(section['RegridOpt'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate RegridOpt under the Regridding section '
                                        'in the configuration file.')
@@ -593,7 +652,7 @@ class ConfigOptions:
                                            'value of 1-3 for each corresponding input forcing.')
 
         # Read weight file directory (optional)
-        self.weightsDir = config['Regridding'].get('RegridWeightsDir')
+        self.weightsDir = section.get('RegridWeightsDir')
         if self.weightsDir is not None:
             # if we do have one specified, make sure it exists
             if not os.path.exists(self.weightsDir):
@@ -604,9 +663,10 @@ class ConfigOptions:
         if self.realtime_flag:
             time_handling.calculate_lookback_window(self)
 
+    def read_section_interpolation(self, section):
         # Read in temporal interpolation options.
         try:
-            self.forceTemoralInterp = json.loads(config['Interpolation']['ForcingTemporalInterpolation'])
+            self.forceTemoralInterp = json.loads(section['ForcingTemporalInterpolation'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate ForcingTemporalInterpolation under the Interpolation '
                                        'section in the configuration file.')
@@ -625,12 +685,12 @@ class ConfigOptions:
                 err_handler.err_out_screen('Invalid ForcingTemporalInterpolation chosen in the configuration file. '
                                            'Please choose a value of 0-2 for each corresponding input forcing.')
 
+    def read_section_downscaling(self, section):
         # Read in the temperature downscaling options.
         # Create temporary array to hold flags of if we need input parameter files.
-        param_flag = np.empty([len(self.input_forcings)], np.int)
-        param_flag[:] = 0
+        param_flag = np.zeros(len(self.input_forcings), dtype=int)
         try:
-            self.t2dDownscaleOpt = json.loads(config['Downscaling']['TemperatureDownscaling'])
+            self.t2dDownscaleOpt = json.loads(section['TemperatureDownscaling'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate TemperatureDownscaling under the Downscaling '
                                        'section of the configuration file.')
@@ -654,7 +714,7 @@ class ConfigOptions:
 
         # Read in the pressure downscaling options.
         try:
-            self.psfcDownscaleOpt = json.loads(config['Downscaling']['PressureDownscaling'])
+            self.psfcDownscaleOpt = json.loads(section['PressureDownscaling'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate PressureDownscaling under the Downscaling '
                                        'section of the configuration file.')
@@ -673,7 +733,7 @@ class ConfigOptions:
 
         # Read in the shortwave downscaling options
         try:
-            self.swDownscaleOpt = json.loads(config['Downscaling']['ShortwaveDownscaling'])
+            self.swDownscaleOpt = json.loads(section['ShortwaveDownscaling'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate ShortwaveDownscaling under the Downscaling '
                                        'section of the configuration file.')
@@ -692,7 +752,7 @@ class ConfigOptions:
 
         # Read in the precipitation downscaling options
         try:
-            self.precipDownscaleOpt = json.loads(config['Downscaling']['PrecipDownscaling'])
+            self.precipDownscaleOpt = json.loads(section['PrecipDownscaling'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate PrecipDownscaling under the Downscaling '
                                        'section of the configuration file.')
@@ -715,7 +775,7 @@ class ConfigOptions:
 
         # Read in humidity downscaling options.
         try:
-            self.q2dDownscaleOpt = json.loads(config['Downscaling']['HumidityDownscaling'])
+            self.q2dDownscaleOpt = json.loads(section['HumidityDownscaling'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate HumidityDownscaling under the Downscaling '
                                        'section of the configuration file.')
@@ -738,7 +798,7 @@ class ConfigOptions:
         if param_flag.sum() > 0:
             self.paramFlagArray = param_flag
             try:
-                tmp_scale_param_dirs = config.get('Downscaling', 'DownscalingParamDirs').split(',')
+                tmp_scale_param_dirs = section.get('DownscalingParamDirs').split(',')
             except KeyError:
                 err_handler.err_out_screen('Unable to locate DownscalingParamDirs in the configuration file.')
             except configparser.NoOptionError:
@@ -763,33 +823,18 @@ class ConfigOptions:
 
         # if the directory was specified but not downscaling, set it anyway for bias correction etc.
         try:
-            if param_flag.sum() == 0 and len(config.get('Downscaling', 'DownscalingParamDirs').split(',')) == 1:
-                self.dScaleParamDirs = [config.get('Downscaling', 'DownscalingParamDirs').split(',')[0]]
+            if param_flag.sum() == 0 and len(section.get('DownscalingParamDirs').split(',')) == 1:
+                self.dScaleParamDirs = [section.get('DownscalingParamDirs').split(',')[0]]
         except KeyError:
             pass    # TODO: this should not be `pass` if we have a parameter-based Bias Correction scheme selected
 
+    def read_section_bias_correction(self, section):
         #   * Bias Correction Options *
 
-        # Read AnA flag option
-        try:
-            # check both the Forecast section and if it's not there, the old BiasCorrection location
-            self.ana_flag = config['Forecast'].get('AnAFlag', config['BiasCorrection'].get('AnAFlag'))
-            if self.ana_flag is None:
-                raise KeyError
-            else:
-                self.ana_flag = int(self.ana_flag)
-        except KeyError:
-            err_handler.err_out_screen('Unable to locate AnAFlag in the configuration file.')
-        except configparser.NoOptionError:
-            err_handler.err_out_screen('Unable to locate AnAFlag in the configuration file.')
-        except ValueError:
-            err_handler.err_out_screen('Improper AnAFlag value ')
-        if self.ana_flag < 0 or self.ana_flag > 1:
-            err_handler.err_out_screen('Please choose a AnAFlag value of 0 or 1.')
-
+        
         # Read in temperature bias correction options
         try:
-            self.t2BiasCorrectOpt = json.loads(config['BiasCorrection']['TemperatureBiasCorrection'])
+            self.t2BiasCorrectOpt = json.loads(section['TemperatureBiasCorrection'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate TemperatureBiasCorrection under the '
                                        'BiasCorrection section of the configuration file.')
@@ -810,7 +855,7 @@ class ConfigOptions:
 
         # Read in surface pressure bias correction options.
         try:
-            self.psfcBiasCorrectOpt = json.loads(config['BiasCorrection']['PressureBiasCorrection'])
+            self.psfcBiasCorrectOpt = json.loads(section['PressureBiasCorrection'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate PressureBiasCorrection under the '
                                        'BiasCorrection section of the configuration file.')
@@ -833,7 +878,7 @@ class ConfigOptions:
 
         # Read in humidity bias correction options.
         try:
-            self.q2BiasCorrectOpt = json.loads(config['BiasCorrection']['HumidityBiasCorrection'])
+            self.q2BiasCorrectOpt = json.loads(section['HumidityBiasCorrection'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate HumidityBiasCorrection under the '
                                        'BiasCorrection section of the configuration file.')
@@ -856,7 +901,7 @@ class ConfigOptions:
 
         # Read in wind bias correction options.
         try:
-            self.windBiasCorrect = json.loads(config['BiasCorrection']['WindBiasCorrection'])
+            self.windBiasCorrect = json.loads(section['WindBiasCorrection'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate WindBiasCorrection under the '
                                        'BiasCorrection section of the configuration file.')
@@ -878,7 +923,7 @@ class ConfigOptions:
 
         # Read in shortwave radiation bias correction options.
         try:
-            self.swBiasCorrectOpt = json.loads(config['BiasCorrection']['SwBiasCorrection'])
+            self.swBiasCorrectOpt = json.loads(section['SwBiasCorrection'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate SwBiasCorrection under the '
                                        'BiasCorrection section of the configuration file.')
@@ -900,7 +945,7 @@ class ConfigOptions:
 
         # Read in longwave radiation bias correction options.
         try:
-            self.lwBiasCorrectOpt = json.loads(config['BiasCorrection']['LwBiasCorrection'])
+            self.lwBiasCorrectOpt = json.loads(section['LwBiasCorrection'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate LwBiasCorrection under the '
                                        'BiasCorrection section of the configuration file.')
@@ -923,7 +968,7 @@ class ConfigOptions:
 
         # Read in precipitation bias correction options.
         try:
-            self.precipBiasCorrectOpt = json.loads(config['BiasCorrection']['PrecipBiasCorrection'])
+            self.precipBiasCorrectOpt = json.loads(section['PrecipBiasCorrection'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate PrecipBiasCorrection under the '
                                        'BiasCorrection section of the configuration file.')
@@ -973,9 +1018,10 @@ class ConfigOptions:
                     err_handler.err_out_screen('CFSv2-NLDAS NWM bias correction can only be used in '
                                                'CFSv2-only configurations')
 
+    def read_section_supp_forcing(self, section):
         # Read in supplemental precipitation options as an array of values to map.
         try:
-            self.supp_precip_forcings = json.loads(config['SuppForcing']['SuppPcp'])
+            self.supp_precip_forcings = json.loads(section['SuppPcp'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate SuppPcp under SuppForcing section in configuration file.')
         except configparser.NoOptionError:
@@ -986,7 +1032,7 @@ class ConfigOptions:
 
         # Read in the supp pcp types (GRIB[1|2], NETCDF)
         try:
-            self.supp_precip_file_types = config.get('SuppForcing', 'SuppPcpForcingTypes').strip("[]").split(',')
+            self.supp_precip_file_types = section.get('SuppPcpForcingTypes').strip("[]").split(',')
             self.supp_precip_file_types = [stype.strip() for stype in self.supp_precip_file_types]
             if self.supp_precip_file_types == ['']:
                 self.supp_precip_file_types = []
@@ -1013,7 +1059,7 @@ class ConfigOptions:
                 # Read in RQI threshold to apply to radar products.
                 if suppOpt == 1 or suppOpt == 2:
                     try:
-                        self.rqiMethod = json.loads(config['SuppForcing']['RqiMethod'])
+                        self.rqiMethod = json.loads(section['RqiMethod'])
                     except KeyError:
                         err_handler.err_out_screen('Unable to locate RqiMethod under SuppForcing '
                                                    'section in the configuration file.')
@@ -1027,7 +1073,7 @@ class ConfigOptions:
                         err_handler.err_out_screen('Please specify an RqiMethod of either 0, 1, or 2.')
 
                     try:
-                        self.rqiThresh = json.loads(config['SuppForcing']['RqiThreshold'])
+                        self.rqiThresh = json.loads(section['RqiThreshold'])
                     except KeyError:
                         err_handler.err_out_screen('Unable to locate RqiThreshold under '
                                                    'SuppForcing section in the configuration file.')
@@ -1042,7 +1088,7 @@ class ConfigOptions:
 
             # Read in the input directories for each supplemental precipitation product.
             try:
-                self.supp_precip_dirs = config.get('SuppForcing', 'SuppPcpDirectories').split(',')
+                self.supp_precip_dirs = section.get('SuppPcpDirectories').split(',')
             except KeyError:
                 err_handler.err_out_screen('Unable to locate SuppPcpDirectories in SuppForcing section '
                                            'in the configuration file.')
@@ -1061,7 +1107,7 @@ class ConfigOptions:
 
             # Process supplemental precipitation enforcement options
             try:
-                self.supp_precip_mandatory = json.loads(config['SuppForcing']['SuppPcpMandatory'])
+                self.supp_precip_mandatory = json.loads(section['SuppPcpMandatory'])
             except KeyError:
                 err_handler.err_out_screen('Unable to locate SuppPcpMandatory under the SuppForcing section '
                                            'in the configuration file.')
@@ -1082,7 +1128,7 @@ class ConfigOptions:
 
             # Read in the regridding options.
             try:
-                self.regrid_opt_supp_pcp = json.loads(config['SuppForcing']['RegridOptSuppPcp'])
+                self.regrid_opt_supp_pcp = json.loads(section['RegridOptSuppPcp'])
             except KeyError:
                 err_handler.err_out_screen('Unable to locate RegridOptSuppPcp under the SuppForcing section '
                                            'in the configuration file.')
@@ -1103,7 +1149,7 @@ class ConfigOptions:
 
             # Read in temporal interpolation options.
             try:
-                self.suppTemporalInterp = json.loads(config['SuppForcing']['SuppPcpTemporalInterpolation'])
+                self.suppTemporalInterp = json.loads(section['SuppPcpTemporalInterpolation'])
             except KeyError:
                 err_handler.err_out_screen('Unable to locate SuppPcpTemporalInterpolation under the SuppForcing '
                                            'section in the configuration file.')
@@ -1124,7 +1170,7 @@ class ConfigOptions:
 
             # Read in the SuppPcpInputOffsets options.
             try:
-                self.supp_input_offsets = json.loads(config['SuppForcing']['SuppPcpInputOffsets'])
+                self.supp_input_offsets = json.loads(section['SuppPcpInputOffsets'])
             except KeyError:
                 err_handler.err_out_screen('Unable to locate SuppPcpInputOffsets under SuppForcing '
                                            'section in the configuration file.')
@@ -1146,7 +1192,7 @@ class ConfigOptions:
 
             # Read in the optional parameter directory for supplemental precipitation.
             try:
-                self.supp_precip_param_dir = config['SuppForcing']['SuppPcpParamDir']
+                self.supp_precip_param_dir = section['SuppPcpParamDir']
             except KeyError:
                 err_handler.err_out_screen('Unable to locate SuppPcpParamDir under the SuppForcing section '
                                            'in the configuration file.')
@@ -1158,13 +1204,14 @@ class ConfigOptions:
             if not os.path.isdir(self.supp_precip_param_dir):
                 err_handler.err_out_screen('Unable to locate SuppPcpParamDir: ' + self.supp_precip_param_dir)
 
+    def read_section_ensembles(self, section):
         # Read in Ensemble information
         # Read in CFS ensemble member information IF we have chosen CFSv2 as an input
         # forcing.
         for optTmp in self.input_forcings:
             if optTmp == 7:
                 try:
-                    self.cfsv2EnsMember = json.loads(config['Ensembles']['cfsEnsNumber'])
+                    self.cfsv2EnsMember = json.loads(section['cfsEnsNumber'])
                 except KeyError:
                     err_handler.err_out_screen('Unable to locate cfsEnsNumber under the Ensembles '
                                                'section of the configuration file')
@@ -1176,10 +1223,11 @@ class ConfigOptions:
                 if self.cfsv2EnsMember < 1 or self.cfsv2EnsMember > 4:
                     err_handler.err_out_screen('Please chose an cfsEnsNumber value of 1,2,3 or 4.')
 
+    def read_section_custom(self, section):
         # Read in information for the custom input NetCDF files that are to be processed.
         # Read in the ForecastInputHorizons options.
         try:
-            self.customFcstFreq = json.loads(config['Custom']['custom_input_fcst_freq'])
+            self.customFcstFreq = json.loads(section['custom_input_fcst_freq'])
         except KeyError:
             err_handler.err_out_screen('Unable to locate custom_input_fcst_freq under Custom section in '
                                        'configuration file.')
