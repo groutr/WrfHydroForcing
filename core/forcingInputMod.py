@@ -469,13 +469,20 @@ def initDict(ConfigOptions,GeoMetaWrfHydro):
         InputDict[force_key].keyValue = force_key
         InputDict[force_key].regridOpt = ConfigOptions.regrid_opt[force_tmp]
         InputDict[force_key].enforce = ConfigOptions.input_force_mandatory[force_tmp]
-        InputDict[force_key].timeInterpOpt = ConfigOptions.forceTemoralInterp[force_tmp]
 
-        InputDict[force_key].q2dDownscaleOpt = ConfigOptions.q2dDownscaleOpt[force_tmp]
-        InputDict[force_key].t2dDownscaleOpt = ConfigOptions.t2dDownscaleOpt[force_tmp]
-        InputDict[force_key].precipDownscaleOpt = ConfigOptions.precipDownscaleOpt[force_tmp]
-        InputDict[force_key].swDowscaleOpt = ConfigOptions.swDownscaleOpt[force_tmp]
-        InputDict[force_key].psfcDownscaleOpt = ConfigOptions.psfcDownscaleOpt[force_tmp]
+        if ConfigOptions.forceTemoralInterp:
+            InputDict[force_key].timeInterpOpt = ConfigOptions.forceTemoralInterp[force_tmp]
+
+        if ConfigOptions.q2dDownscaleOpt:
+            InputDict[force_key].q2dDownscaleOpt = ConfigOptions.q2dDownscaleOpt[force_tmp]
+        if ConfigOptions.t2dDownscaleOpt:
+            InputDict[force_key].t2dDownscaleOpt = ConfigOptions.t2dDownscaleOpt[force_tmp]
+        if ConfigOptions.precipDownscaleOpt:
+            InputDict[force_key].precipDownscaleOpt = ConfigOptions.precipDownscaleOpt[force_tmp]
+        if ConfigOptions.swDownscaleOpt:
+            InputDict[force_key].swDowscaleOpt = ConfigOptions.swDownscaleOpt[force_tmp]
+        if ConfigOptions.psfcDownscaleOpt:
+            InputDict[force_key].psfcDownscaleOpt = ConfigOptions.psfcDownscaleOpt[force_tmp]
         # Check to make sure the necessary input files for downscaling are present.
         #if InputDict[force_key].t2dDownscaleOpt == 2:
         #    # We are using a pre-calculated lapse rate on the WRF-Hydro grid.
@@ -486,26 +493,39 @@ def initDict(ConfigOptions,GeoMetaWrfHydro):
         #            pathCheck + " not found."
         #        raise Exception
 
-        InputDict[force_key].t2dBiasCorrectOpt = ConfigOptions.t2BiasCorrectOpt[force_tmp]
-        InputDict[force_key].q2dBiasCorrectOpt = ConfigOptions.q2BiasCorrectOpt[force_tmp]
-        InputDict[force_key].precipBiasCorrectOpt = ConfigOptions.precipBiasCorrectOpt[force_tmp]
-        InputDict[force_key].swBiasCorrectOpt = ConfigOptions.swBiasCorrectOpt[force_tmp]
-        InputDict[force_key].lwBiasCorrectOpt = ConfigOptions.lwBiasCorrectOpt[force_tmp]
-        InputDict[force_key].windBiasCorrectOpt = ConfigOptions.windBiasCorrect[force_tmp]
-        InputDict[force_key].psfcBiasCorrectOpt = ConfigOptions.psfcBiasCorrectOpt[force_tmp]
+        if ConfigOptions.t2BiasCorrectOpt:
+            InputDict[force_key].t2dBiasCorrectOpt = ConfigOptions.t2BiasCorrectOpt[force_tmp]
+        if ConfigOptions.q2BiasCorrectOpt:
+            InputDict[force_key].q2dBiasCorrectOpt = ConfigOptions.q2BiasCorrectOpt[force_tmp]
+        if ConfigOptions.precipBiasCorrectOpt:
+            InputDict[force_key].precipBiasCorrectOpt = ConfigOptions.precipBiasCorrectOpt[force_tmp]
+        if ConfigOptions.swBiasCorrectOpt:
+            InputDict[force_key].swBiasCorrectOpt = ConfigOptions.swBiasCorrectOpt[force_tmp]
+        if ConfigOptions.lwBiasCorrectOpt:
+            InputDict[force_key].lwBiasCorrectOpt = ConfigOptions.lwBiasCorrectOpt[force_tmp]
+        if ConfigOptions.windBiasCorrect:
+            InputDict[force_key].windBiasCorrectOpt = ConfigOptions.windBiasCorrect[force_tmp]
+        if ConfigOptions.psfcBiasCorrectOpt:
+            InputDict[force_key].psfcBiasCorrectOpt = ConfigOptions.psfcBiasCorrectOpt[force_tmp]
 
-        InputDict[force_key].inDir = ConfigOptions.input_force_dirs[force_tmp]
-        InputDict[force_key].paramDir = ConfigOptions.dScaleParamDirs[force_tmp]
-        InputDict[force_key].fileType = ConfigOptions.input_force_types[force_tmp]
+        if ConfigOptions.input_force_dirs:   
+            InputDict[force_key].inDir = ConfigOptions.input_force_dirs[force_tmp]
+        if ConfigOptions.dScaleParamDirs:
+            InputDict[force_key].paramDir = ConfigOptions.dScaleParamDirs[force_tmp]
+        if ConfigOptions.input_force_types:
+            InputDict[force_key].fileType = ConfigOptions.input_force_types[force_tmp]
         InputDict[force_key].define_product()
-        InputDict[force_key].userFcstHorizon = ConfigOptions.fcst_input_horizons[force_tmp]
-        InputDict[force_key].userCycleOffset = ConfigOptions.fcst_input_offsets[force_tmp]
+        if ConfigOptions.fcst_input_horizons:
+            InputDict[force_key].userFcstHorizon = ConfigOptions.fcst_input_horizons[force_tmp]
+        if ConfigOptions.fcst_input_offsets:
+            InputDict[force_key].userCycleOffset = ConfigOptions.fcst_input_offsets[force_tmp]
 
-        InputDict[force_key].border = ConfigOptions.ignored_border_widths[force_tmp]
+        if ConfigOptions.ignored_border_widths:
+            InputDict[force_key].border = ConfigOptions.ignored_border_widths[force_tmp]
 
         # If we have specified specific humidity downscaling, establish arrays to hold
         # temporary temperature arrays that are un-downscaled.
-        if InputDict[force_key].q2dDownscaleOpt > 0:
+        if InputDict[force_key].q2dDownscaleOpt is not None and InputDict[force_key].q2dDownscaleOpt > 0:
             InputDict[force_key].t2dTmp = np.empty([GeoMetaWrfHydro.ny_local,
                                                     GeoMetaWrfHydro.nx_local],
                                                    np.float32)
@@ -526,8 +546,8 @@ def initDict(ConfigOptions,GeoMetaWrfHydro):
                                                 GeoMetaWrfHydro.nx_local],np.float32)
 
         # Obtain custom input cycle frequencies
-        if force_key == 10 or force_key == 11 or force_key == 12:
-            InputDict[force_key].cycleFreq = ConfigOptions.customFcstFreq[custom_count]
-            custom_count = custom_count + 1
+        #if force_key == 10 or force_key == 11 or force_key == 12:
+        #    InputDict[force_key].cycleFreq = ConfigOptions.customFcstFreq[custom_count]
+        #    custom_count = custom_count + 1
 
     return InputDict
