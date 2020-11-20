@@ -937,6 +937,11 @@ def find_custom_hourly_neighbors(input_forcings, config_options, d_current, mpi_
         if input_forcings.regridded_forcings2 is not None:
             input_forcings.regridded_forcings2[:, :, :] = config_options.globalNdv
 
+def find_hwrf_neighbors(input_forcings, config_options, d_current, mpi_config):
+    storm_name = os.environ['HWRF_STORM']
+
+    print(d_current)
+
 
 def find_hourly_mrms_radar_neighbors(supplemental_precip, config_options, d_current, mpi_config):
     """
