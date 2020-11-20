@@ -20,18 +20,16 @@ class ConfigOptions:
         Initialize the configuration class to empty None attributes
         param config: The user-specified path to the configuration file.
         """
-        self.input_forcings = None
-        self.supp_precip_forcings = None
-        self.input_force_dirs = None
-        self.input_force_types = None
-        self.supp_precip_dirs = None
-        self.supp_precip_file_types = None
-        self.supp_precip_param_dir = None
-        self.input_force_mandatory = None
-        self.supp_precip_mandatory = None
-        self.number_inputs = None
-        self.number_supp_pcp = None
-        self.number_custom_inputs = 0
+        self.input_forcings = []
+        self.supp_precip_forcings = []
+        self.input_force_dirs = []
+        self.input_force_types = []
+        self.supp_precip_dirs = []
+        self.supp_precip_file_types = []
+        self.supp_precip_param_dir = []
+        self.input_force_mandatory = []
+        self.supp_precip_mandatory = []
+
         self.output_freq = None
         self.output_dir = None
         self.scratch_dir = None
@@ -95,6 +93,18 @@ class ConfigOptions:
         self.errFlag = 0
         self.nwmVersion = None
         self.nwmConfig = None
+
+    @property
+    def number_inputs(self):
+        return len(self.input_forcings)
+
+    @property
+    def number_supp_pcp(self):
+        return len(self.supp_precip_forcings)
+
+    @property
+    def number_custom_inputs(self):
+        return sum(1 for i in self.input_forcings if i == 10)
 
     def read_config(self):
         """
@@ -173,15 +183,11 @@ class ConfigOptions:
             err_handler.err_out_screen('Improper InputForcings option specified in configuration file')
         if len(self.input_forcings) == 0:
             err_handler.err_out_screen('Please choose at least one InputForcings dataset to process')
-        self.number_inputs = len(self.input_forcings)
 
         # Check to make sure forcing options make sense
         for forceOpt in self.input_forcings:
             if forceOpt < 0 or forceOpt > 19:
                 err_handler.err_out_screen('Please specify InputForcings values between 1 and 18.')
-            # Keep tabs on how many custom input forcings we have.
-            if forceOpt == 10:
-                self.number_custom_inputs = self.number_custom_inputs + 1
 
         # Read in the input forcings types (GRIB[1|2], NETCDF)
         try:
@@ -1028,7 +1034,6 @@ class ConfigOptions:
             err_handler.err_out_screen('Unable to locate SuppPcp under SuppForcing section in configuration file.')
         except json.decoder.JSONDecodeError:
             err_handler.err_out_screen('Improper SuppPcp option specified in configuration file')
-        self.number_supp_pcp = len(self.supp_precip_forcings)
 
         # Read in the supp pcp types (GRIB[1|2], NETCDF)
         try:
