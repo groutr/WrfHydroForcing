@@ -2368,14 +2368,16 @@ def calculate_weights(id_tmp, force_count, input_forcings, config_options, mpi_c
 
     if mpi_config.rank == 0:
         try:
-            input_forcings.ny_global = id_tmp.variables[input_forcings.netcdf_var_names[force_count]].shape[1]
+            input_forcings.ny_global = id_tmp.dimensions["latitude"].size
+            #input_forcings.ny_global = id_tmp.variables[input_forcings.netcdf_var_names[force_count]].shape[1]
         except (ValueError, KeyError, AttributeError) as err:
             config_options.errMsg = "Unable to extract Y shape size from: " + \
                                     input_forcings.netcdf_var_names[force_count] + " from: " + \
                                     input_forcings.tmpFile + " (" + str(err) + ")"
             err_handler.log_critical(config_options, mpi_config)
         try:
-            input_forcings.nx_global = id_tmp.variables[input_forcings.netcdf_var_names[force_count]].shape[2]
+            input_forcings.nx_global = id_tmp.dimensions["longitude"].size
+            #input_forcings.nx_global = id_tmp.variables[input_forcings.netcdf_var_names[force_count]].shape[2]
         except (ValueError, KeyError, AttributeError) as err:
             config_options.errMsg = "Unable to extract X shape size from: " + \
                                     input_forcings.netcdf_var_names[force_count] + " from: " + \
