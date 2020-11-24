@@ -1,6 +1,7 @@
 # This is a datetime module for handling datetime
 # calculations in the forcing engine.
 import datetime
+from datetime import timedelta
 import math
 import os
 
@@ -938,9 +939,21 @@ def find_custom_hourly_neighbors(input_forcings, config_options, d_current, mpi_
             input_forcings.regridded_forcings2[:, :, :] = config_options.globalNdv
 
 def find_hwrf_neighbors(input_forcings, config_options, d_current, mpi_config):
-    storm_name = os.environ['HWRF_STORM']
 
-    print(d_current)
+    next_step = d_current + timedelta(hours=1)
+
+    # increment fcst_hour
+    input_forcings.fcst_hour1 = input_forcings.fcst_hour2
+    input_forcings.fcst_hour2 = next_step.hour
+    input_forcings.fcst_date1 = input_forcings.fcst_date2
+    input_forcings.fcst_date2 = next_step
+
+    next_file = os.path.join(input_forcings.inDir, f"{next_step.strftime('%Y%m%d%H')}.hwrfprs.f{next_step.hour}")
+    input_forcings.file_in1 = input_forcings.file_in2
+    input_forcings.file_in2 = next_file
+
+    breakpoint()
+
 
 
 def find_hourly_mrms_radar_neighbors(supplemental_precip, config_options, d_current, mpi_config):
