@@ -46,7 +46,7 @@ class input_forcings:
         self.cycleFreq = None
         self.outFreq = None
         self.regridOpt = None
-        self.timeInterpOpt = None
+        self.timeInterpOpt = 0
         self.t2dDownscaleOpt = None
         self.lapseGrid = None
         self.rqiClimoGrid = None
@@ -465,7 +465,7 @@ def initDict(ConfigOptions,GeoMetaWrfHydro):
     custom_count = 0
     for force_tmp in range(0,ConfigOptions.number_inputs):
         force_key = ConfigOptions.input_forcings[force_tmp]
-        InputDict[force_key] = input_forcings(force_key))
+        InputDict[force_key] = input_forcings(force_key)
         InputDict[force_key].regridOpt = ConfigOptions.regrid_opt[force_tmp]
         InputDict[force_key].enforce = ConfigOptions.input_force_mandatory[force_tmp]
 
