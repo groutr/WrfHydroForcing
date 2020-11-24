@@ -879,11 +879,6 @@ def regrid_hwrf(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config):
             except OSError:
                 config_options.errMsg = "Unable to close NetCDF file: " + input_forcings.tmpFile
                 err_handler.err_out(config_options)
-            try:
-                os.remove(input_forcings.tmpFile)
-            except OSError:
-                config_options.errMsg = "Unable to remove NetCDF file: " + input_forcings.tmpFile
-                err_handler.err_out(config_options)
 
 
 def regrid_custom_hourly_netcdf(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config):
