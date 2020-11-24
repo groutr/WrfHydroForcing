@@ -959,8 +959,6 @@ def find_hwrf_neighbors(input_forcings, config_options, d_current, mpi_config):
         if input_forcings.regridded_forcings2 is not None:
             input_forcings.regridded_forcings2[:] = config_options.globalNdv
 
-    breakpoint()
-
 
 
 def find_hourly_mrms_radar_neighbors(supplemental_precip, config_options, d_current, mpi_config):
