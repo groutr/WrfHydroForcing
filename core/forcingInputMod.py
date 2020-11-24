@@ -22,11 +22,11 @@ class input_forcings:
     GRIB1 = "GRIB1"
     NETCDF = "NETCDF"
     
-    def __init__(self):
+    def __init__(self, keyValue):
         """
         Initializing all attributes and objects to None.
         """
-        self.keyValue = None
+        self.keyValue = keyValue
         self.inDir = None
         self.enforce = None
         self.paramDir = None
@@ -465,8 +465,7 @@ def initDict(ConfigOptions,GeoMetaWrfHydro):
     custom_count = 0
     for force_tmp in range(0,ConfigOptions.number_inputs):
         force_key = ConfigOptions.input_forcings[force_tmp]
-        InputDict[force_key] = input_forcings()
-        InputDict[force_key].keyValue = force_key
+        InputDict[force_key] = input_forcings(force_key))
         InputDict[force_key].regridOpt = ConfigOptions.regrid_opt[force_tmp]
         InputDict[force_key].enforce = ConfigOptions.input_force_mandatory[force_tmp]
 
