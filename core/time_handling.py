@@ -951,7 +951,9 @@ def find_hwrf_neighbors(input_forcings, config_options, d_current, mpi_config):
     next_file = os.path.join(input_forcings.inDir, f"{next_step.strftime('%Y%m%d%H')}.hwrfprs.f{next_step.hour}.nc")
     input_forcings.file_in1 = input_forcings.file_in2
     input_forcings.file_in2 = next_file
-    input_forcings.regridded_forcings1[:] = input_forcings.regridded_forcings2
+
+    if input_forcings.regridded_forcings1 is not None and input_forcings.regridded_forcings2 is not None:
+        input_forcings.regridded_forcings1[:] = input_forcings.regridded_forcings2
 
     if not os.path.isfile(input_forcings.file_in2):
         if input_forcings.regridded_forcings2 is not None:
