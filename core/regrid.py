@@ -839,6 +839,13 @@ def regrid_hwrf(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config):
                                        nc_var
             err_handler.log_msg(config_options, mpi_config)
 
+        calc_regrid_flag = check_regrid_status(id_tmp, force_count, input_forcings,
+                                                config_options, wrf_hydro_geo_meta, mpi_config)
+        err_handler.check_program_status(config_options, mpi_config)
+        if calc_regrid_flag:
+            calculate_weights(id_tmp, force_count, input_forcings, config_options, mpi_config)
+            err_handler.check_program_status(config_options, mpi_config)
+                      
         output_idx = input_forcings.input_map_output[force_count]
 
         # Regrid the input variables.
