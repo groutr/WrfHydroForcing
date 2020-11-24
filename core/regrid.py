@@ -872,13 +872,13 @@ def regrid_hwrf(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config):
             input_forcings.regridded_forcings1[output_idx] = \
                 input_forcings.regridded_forcings2[output_idx]
 
-        # Close the temporary NetCDF file and remove it.
-        if mpi_config.rank == 0:
-            try:
-                id_tmp.close()
-            except OSError:
-                config_options.errMsg = "Unable to close NetCDF file: " + input_forcings.tmpFile
-                err_handler.err_out(config_options)
+    # Close the temporary NetCDF file and remove it.
+    if mpi_config.rank == 0:
+        try:
+            id_tmp.close()
+        except OSError:
+            config_options.errMsg = "Unable to close NetCDF file: " + input_forcings.file_in2
+            err_handler.err_out(config_options)
 
 
 def regrid_custom_hourly_netcdf(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config):
@@ -2261,11 +2261,15 @@ def check_regrid_status(id_tmp, force_count, input_forcings, config_options, wrf
             calc_regrid_flag = True
         else:
             if mpi_config.rank == 0:
-                if id_tmp.variables[input_forcings.netcdf_var_names[force_count]].shape[1] \
-                        != input_forcings.ny_global and \
-                        id_tmp.variables[input_forcings.netcdf_var_names[force_count]].shape[2] \
-                        != input_forcings.nx_global:
+                _lat = id_tmp.dimensions["latitude"].size
+                _long = id_tmp.dimensions["longitude"].size
+                if _lat != input_forcings.ny_global and _long != input_forcings.nx_global:
                     calc_regrid_flag = True
+                #if id_tmp.variables[input_forcings.netcdf_var_names[force_count]].shape[1] \
+                #        != input_forcings.ny_global and \
+                #        id_tmp.variables[input_forcings.netcdf_var_names[force_count]].shape[2] \
+                #        != input_forcings.nx_global:
+                #    calc_regrid_flag = True
     # mpi_config.comm.barrier()
 
     # Broadcast the flag to the other processors.
