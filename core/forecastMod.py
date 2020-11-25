@@ -275,5 +275,5 @@ def process_forecasts(ConfigOptions, wrfHydroGeoMeta, inputForcingMod, suppPcpMo
                 err_handler.log_critical(ConfigOptions, MpiConfig)
             err_handler.check_program_status(ConfigOptions, MpiConfig)
     
-    for in_force in ConfigOptions.input_forcings:
+    for in_force in ConfigOptions.input_forcings.values():
         in_force.regridObj.destroy()
