@@ -277,9 +277,7 @@ def check_forcing_bounds(ConfigOptions, input_forcings, MpiConfig):
         if numCells > 0:
             ConfigOptions.errMsg = "Data below minimum threshold for: " + varTmp + " in " + input_forcings.file_in2 + \
                                    " for " + str(numCells) + " regridded pixel cells."
-            log_critical(ConfigOptions, MpiConfig)
-            indCheck = None
-            return
+            log_info(ConfigOptions, MpiConfig)
 
         # Check to see if any pixel cells are above the maximum value.
         indCheck = np.where((input_forcings.regridded_forcings2[variable_range[varTmp][0]] != ConfigOptions.globalNdv) &
@@ -288,12 +286,8 @@ def check_forcing_bounds(ConfigOptions, input_forcings, MpiConfig):
         if numCells > 0:
             ConfigOptions.errMsg = "Data above maximum threshold for: " + varTmp + " in " + input_forcings.file_in2 + \
                                    " for " + str(numCells) + " regridded pixel cells."
-            log_critical(ConfigOptions, MpiConfig)
-            indCheck = None
-            return
+            log_info(ConfigOptions, MpiConfig)
 
-    indCheck = None
-    return
 
 def check_supp_pcp_bounds(ConfigOptions, supplemental_precip, MpiConfig):
     """
