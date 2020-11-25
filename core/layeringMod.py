@@ -28,7 +28,7 @@ def layer_final_forcings(OutputObj,input_forcings,ConfigOptions,MpiConfig):
     # 6.) Surface pressure (Pa)
     # 7.) Surface incoming shortwave radiation flux (W/m^2)
 
-    for force_idx in range(0,8):
+    for force_idx in range(0,input_forcings.nvars):
         if force_idx in input_forcings.input_map_output:
             outLayerCurrent = OutputObj.output_local[force_idx,:,:]
             layerIn = input_forcings.final_forcings[force_idx,:,:]
@@ -36,8 +36,6 @@ def layer_final_forcings(OutputObj,input_forcings,ConfigOptions,MpiConfig):
             outLayerCurrent[indSet] = layerIn[indSet]
             OutputObj.output_local[force_idx, :, :] = outLayerCurrent
 
-            # Reset for next iteration and memory efficiency.
-            indSet = None
     # MpiConfig.comm.barrier()
 
 

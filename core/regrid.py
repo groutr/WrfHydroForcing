@@ -2250,10 +2250,9 @@ def check_regrid_status(id_tmp, force_count, input_forcings, config_options, wrf
     if input_forcings.nx_global is None or input_forcings.ny_global is None:
         # This is the first timestep.
         # Create out regridded numpy arrays to hold the regridded data.
-        vars = max(len(input_forcings.netcdf_var_names), len(input_forcings.grib_vars))
-        input_forcings.regridded_forcings1 = np.empty([vars, wrf_hydro_geo_meta.ny_local, wrf_hydro_geo_meta.nx_local],
+        input_forcings.regridded_forcings1 = np.empty([input_forcings.nvars, wrf_hydro_geo_meta.ny_local, wrf_hydro_geo_meta.nx_local],
                                                       np.float32)
-        input_forcings.regridded_forcings2 = np.empty([vars, wrf_hydro_geo_meta.ny_local, wrf_hydro_geo_meta.nx_local],
+        input_forcings.regridded_forcings2 = np.empty([input_forcings.nvars, wrf_hydro_geo_meta.ny_local, wrf_hydro_geo_meta.nx_local],
                                                       np.float32)
 
     if mpi_config.rank == 0:

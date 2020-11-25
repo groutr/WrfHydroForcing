@@ -105,6 +105,10 @@ class input_forcings:
         self.regridded_precip2 = None
         self.border = None
 
+    @property
+    def nvars(self):
+        return max(len(self.netcdf_var_names), len(self.grib_vars))
+
     def define_product(self):
         """
         Function to define the product name based on the mapping
@@ -536,8 +540,7 @@ def initDict(ConfigOptions,GeoMetaWrfHydro):
         # of the local grid for this forcing, for a specific output timesetp.
         # This grid will be updated from one output timestep to another, and
         # also through downscaling and bias correction.
-        vars = max(len(InputDict[force_key].grib_vars), len(InputDict[force_key].netcdf_var_names))
-        InputDict[force_key].final_forcings = np.empty([vars,GeoMetaWrfHydro.ny_local,
+        InputDict[force_key].final_forcings = np.empty([InputDict[force_key].nvars,GeoMetaWrfHydro.ny_local,
                                                         GeoMetaWrfHydro.nx_local],
                                                        np.float64)
         InputDict[force_key].height = np.empty([GeoMetaWrfHydro.ny_local,
