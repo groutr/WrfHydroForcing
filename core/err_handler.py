@@ -57,14 +57,13 @@ def check_program_status(ConfigOptions, MpiConfig):
 
     # Reduce version:
     any_error = MpiConfig.comm.reduce(ConfigOptions.errFlag)
-    any_msg = MpiConfig.comm.reduce(ConfigOptions.errMsg)
     if MpiConfig.rank == 0:
         if ConfigOptions.errFlag:
             # print("any_error: ", any_error, type(any_error), flush=True)
             stack = traceback.format_stack()[:-1]
             for frame in stack:
                 print(frame, flush=True, end='')
-            print(any_msg)
+            print(ConfigOptions.errMsg)
             MpiConfig.comm.Abort()
             sys.exit(1)
 
