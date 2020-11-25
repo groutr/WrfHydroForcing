@@ -276,4 +276,5 @@ def process_forecasts(ConfigOptions, wrfHydroGeoMeta, inputForcingMod, suppPcpMo
             err_handler.check_program_status(ConfigOptions, MpiConfig)
     
     for force in inputForcingMod.values():
-        force.regridObj.destroy()
+        if force.regridObj is not None:
+            force.regridObj.destroy()
