@@ -274,3 +274,6 @@ def process_forecasts(ConfigOptions, wrfHydroGeoMeta, inputForcingMod, suppPcpMo
                 ConfigOptions.errMsg = "Unable to create completion file: " + completeFlag
                 err_handler.log_critical(ConfigOptions, MpiConfig)
             err_handler.check_program_status(ConfigOptions, MpiConfig)
+    
+    for in_force in ConfigOptions.input_forcings:
+        in_force.regridObj.destroy()

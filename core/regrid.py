@@ -871,9 +871,6 @@ def regrid_hwrf(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config):
         if config_options.current_output_step == 1:
             input_forcings.regridded_forcings1[output_idx] = \
                 input_forcings.regridded_forcings2[output_idx]
-    
-    # Destroy regridObj to release memory
-    input_forcings.regridObj.destroy()
 
     # Close the temporary NetCDF file and remove it.
     if mpi_config.rank == 0:
