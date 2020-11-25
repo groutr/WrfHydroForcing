@@ -191,11 +191,11 @@ class input_forcings:
         self.cycleFreq = cycle_freq_minutes[self.keyValue]
 
         grib_vars_in = {
-            1: None,
-            2: None,
+            1: [],
+            2: [],
             3: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'PRATE', 'DSWRF',
                 'DLWRF', 'PRES'],
-            4: None,
+            4: [],
             5: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'APCP', 'DSWRF',
                 'DLWRF', 'PRES'],
             6: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'APCP', 'DSWRF',
@@ -205,9 +205,9 @@ class input_forcings:
             8: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'APCP', 'PRES'],
             9: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'PRATE', 'DSWRF',
                 'DLWRF', 'PRES'],
-            10: None,
-            11: None,
-            12: None,
+            10: [],
+            11: [],
+            12: [],
             13: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'PRATE', 'DSWRF',
                  'DLWRF', 'PRES'],
             14: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'PRATE', 'DSWRF',
@@ -217,17 +217,17 @@ class input_forcings:
             16: ['DSWRF', 'DLWRF'],
             17: ['DSWRF', 'DLWRF'],
             18: ['TMP', 'SPFH', 'UGRD', 'VGRD', 'APCP', 'PRES'],
-            19: None
+            19: []
         }
         self.grib_vars = grib_vars_in[self.keyValue]
 
         grib_levels_in = {
-            1: None,
-            2: None,
+            1: [],
+            2: [],
             3: ['2 m above ground', '2 m above ground',
                 '10 m above ground', '10 m above ground',
                 'surface', 'surface', 'surface', 'surface'],
-            4: None,
+            4: [],
             5: ['2 m above ground', '2 m above ground',
                 '10 m above ground', '10 m above ground',
                 'surface', 'surface', 'surface', 'surface'],
@@ -243,9 +243,9 @@ class input_forcings:
             9: ['2 m above ground', '2 m above ground',
                 '10 m above ground', '10 m above ground',
                 'surface', 'surface', 'surface', 'surface'],
-            10: None,
-            11: None,
-            12: None,
+            10: [],
+            11: [],
+            12: [],
             13: ['2 m above ground', '2 m above ground',
                  '10 m above ground', '10 m above ground',
                  'surface', 'surface', 'surface', 'surface'],
@@ -260,18 +260,18 @@ class input_forcings:
             18: ['80 m above ground', '2 m above ground',
                 '10 m above ground', '10 m above ground',
                 'surface', 'surface'],
-            19: None
+            19: []
         }
         self.grib_levels = grib_levels_in[self.keyValue]
 
         netcdf_variables = {
-            1: None,
-            2: None,
+            1: [],
+            2: [],
             3: ['TMP_2maboveground', 'SPFH_2maboveground',
                 'UGRD_10maboveground', 'VGRD_10maboveground',
                 'PRATE_surface', 'DSWRF_surface', 'DLWRF_surface',
                 'PRES_surface'],
-            4: None,
+            4: [],
             5: ['TMP_2maboveground', 'SPFH_2maboveground',
                 'UGRD_10maboveground', 'VGRD_10maboveground',
                 'APCP_surface', 'DSWRF_surface', 'DLWRF_surface',
