@@ -61,7 +61,8 @@ def check_program_status(ConfigOptions, MpiConfig):
         if ConfigOptions.errFlag:
             # print("any_error: ", any_error, type(any_error), flush=True)
             stack = traceback.format_stack()[:-1]
-            [print(frame, flush=True, end='') for frame in stack]
+            for frame in stack:
+                print(frame, flush=True, end='')
             MpiConfig.comm.Abort()
             sys.exit(1)
 
