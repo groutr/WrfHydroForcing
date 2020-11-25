@@ -78,7 +78,8 @@ def init_log(ConfigOptions,MpiConfig):
     :return:
     """
     try:
-        logObj = logging.getLogger('logForcing')
+        logObj = logging.getLogger()
+        logObj.setLevel(logging.INFO)
     except:
         ConfigOptions.errMsg = "Unable to create logging object " \
                                "for: " + ConfigOptions.logFile
@@ -122,12 +123,6 @@ def err_out(ConfigOptions):
             ConfigOptions.logFile
         raise Exception()
     try:
-        logObj.setLevel(logging.ERROR)
-    except:
-        ConfigOptions.errMsg = "Unable to set ERROR logger level for: " + \
-            ConfigOptions.logFile
-        raise Exception()
-    try:
         logObj.error(ConfigOptions.errMsg)
     except:
         ConfigOptions.errMsg = "Unable to write error message to: " + \
@@ -149,11 +144,6 @@ def log_error(ConfigOptions,MpiConfig):
         err_out_screen_para(('Unable to obtain logger object on RANK: ' + str(MpiConfig.rank) +
                              ' for log file: ' + ConfigOptions.logFile),MpiConfig)
     try:
-        logObj.setLevel(logging.ERROR)
-    except:
-        err_out_screen_para(('Unable to set ERROR logger level on RANK: ' + str(MpiConfig.rank) +
-                             ' for log file: ' + ConfigOptions.logFile),MpiConfig)
-    try:
         logObj.error("RANK: " + str(MpiConfig.rank) + " - " + ConfigOptions.errMsg)
     except:
         err_out_screen_para(('Unable to write ERROR message on RANK: ' + str(MpiConfig.rank) +
@@ -171,11 +161,6 @@ def log_critical(ConfigOptions,MpiConfig):
         logObj = logging.getLogger('logForcing')
     except:
         err_out_screen_para(('Unable to obtain logger object on RANK: ' + str(MpiConfig.rank) +
-                             ' for log file: ' + ConfigOptions.logFile),MpiConfig)
-    try:
-        logObj.setLevel(logging.CRITICAL)
-    except:
-        err_out_screen_para(('Unable to set CRITICAL logger level on RANK: ' + str(MpiConfig.rank) +
                              ' for log file: ' + ConfigOptions.logFile),MpiConfig)
     try:
         logObj.critical("RANK: " + str(MpiConfig.rank) + " - " + ConfigOptions.errMsg)
@@ -196,11 +181,6 @@ def log_warning(ConfigOptions,MpiConfig):
         err_out_screen_para(('Unable to obtain logger object on RANK: ' + str(MpiConfig.rank) +
                              ' for log file: ' + ConfigOptions.logFile),MpiConfig)
     try:
-        logObj.setLevel(logging.WARNING)
-    except:
-        err_out_screen_para(('Unable to set WARNING logger level on RANK: ' + str(MpiConfig.rank) +
-                             ' for log file: ' + ConfigOptions.logFile),MpiConfig)
-    try:
         logObj.warning("RANK: " + str(MpiConfig.rank) + " - " + ConfigOptions.statusMsg)
     except:
         err_out_screen_para(('Unable to write WARNING message on RANK: ' + str(MpiConfig.rank) +
@@ -218,11 +198,6 @@ def log_msg(ConfigOptions,MpiConfig):
         err_out_screen_para(('Unable to obtain logger object on RANK: ' + str(MpiConfig.rank) +
                              ' for log file: ' + ConfigOptions.logFile),MpiConfig)
     try:
-        logObj.setLevel(logging.INFO)
-    except:
-        err_out_screen_para(('Unable to set INFO logger level on RANK: ' + str(MpiConfig.rank) +
-                             ' for log file: ' + ConfigOptions.logFile),MpiConfig)
-    try:
         logObj.info("RANK: " + str(MpiConfig.rank) + " - " + ConfigOptions.statusMsg)
     except:
         err_out_screen_para(('Unable to write INFO message on RANK: ' + str(MpiConfig.rank) +
@@ -235,7 +210,7 @@ def close_log(ConfigOptions,MpiConfig):
     :return:
     """
     try:
-        logObj = logging.getLogger('logForcing')
+        logObj = logging.getLogger()
     except:
         err_out_screen_para(('Unable to obtain logger object on RANK: ' + str(MpiConfig.rank) +
                              ' for log file: ' + ConfigOptions.logFile), MpiConfig)
@@ -247,7 +222,7 @@ def close_log(ConfigOptions,MpiConfig):
     try:
         ConfigOptions.logHandle.close()
     except:
-        err_out_screen_para(('Unable to close looging file: ' + ConfigOptions.logFile +
+        err_out_screen_para(('Unable to close loging file: ' + ConfigOptions.logFile +
                              ' on RANK: ' + str(MpiConfig.rank)),MpiConfig)
     ConfigOptions.logHandle = None
 
