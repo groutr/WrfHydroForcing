@@ -871,6 +871,9 @@ def regrid_hwrf(input_forcings, config_options, wrf_hydro_geo_meta, mpi_config):
         if config_options.current_output_step == 1:
             input_forcings.regridded_forcings1[output_idx] = \
                 input_forcings.regridded_forcings2[output_idx]
+    
+    # Destroy regridObj to release memory
+    input_forcings.regridObj.destroy()
 
     # Close the temporary NetCDF file and remove it.
     if mpi_config.rank == 0:
@@ -2545,7 +2548,8 @@ def calculate_weights(id_tmp, force_count, input_forcings, config_options, mpi_c
                 begin = time.monotonic()
                 input_forcings.regridObj = ESMF.RegridFromFile(input_forcings.esmf_field_in,
                                                                input_forcings.esmf_field_out,
-                                                               weight_file)
+                                                               filename=weight_file,
+                                                               rh_filename=weight_file + ".rh")
                 end = time.monotonic()
 
                 if mpi_config.rank == 0:
@@ -2569,7 +2573,8 @@ def calculate_weights(id_tmp, force_count, input_forcings, config_options, mpi_c
                                                    src_mask_values=np.array([0]),
                                                    regrid_method=ESMF.RegridMethod.BILINEAR,
                                                    unmapped_action=ESMF.UnmappedAction.IGNORE,
-                                                   filename=weight_file)
+                                                   filename=weight_file,
+                                                   rh_filename=weight_file + ".rh")
             end = time.monotonic()
 
             if mpi_config.rank == 0:
